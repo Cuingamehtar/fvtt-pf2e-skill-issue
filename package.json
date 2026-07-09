@@ -1,0 +1,20 @@
+{
+  "name": "fvtt-pf2e-skill-issue",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/module.ts --bundle --keep-names --minify --sourcemap --drop-labels=DEV --outfile=pf2e-skill-issue.js",
+    "dev": "esbuild src/module.ts --bundle --keep-names --watch --sourcemap --outfile=pf2e-skill-issue.js"
+  },
+  "devDependencies": {
+    "@7h3laughingman/pf2e-types": "^8.0.2",
+    "@eslint/js": "^10.0.1",
+    "esbuild": "^0.28.1",
+    "eslint": "^10.5.0",
+    "globals": "^17.6.0",
+    "prettier": "^3.8.4",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.61.1"
+  }
+}
