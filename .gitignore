@@ -24,6 +24,7 @@ dist-ssr
 *.sw?
 
 *.lock
-pf2e-drag-attach.js
-pf2e-drag-attach.js.map
+pf2e-skill-issue.js
+pf2e-skill-issue.js.map
 *.zip
+package-lock.json
