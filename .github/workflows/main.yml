@@ -76,7 +76,7 @@ jobs:
 
             - name: "Build"
               run: |
-                  npm ci
+                  npm install
                   npm run build
 
             # Modify "module.json" with values specific to the release.
