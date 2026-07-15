@@ -25,12 +25,6 @@
         },
         "note": "Note",
         "final-proficiency": "Final Proficiency",
-        "proficiency": {
-            "untrained": "Untrained",
-            "trained": "Trained",
-            "expert": "Expert",
-            "master": "Master",
-            "legendary": "Legendary"
-        }
+        "skill-manager-title": "Skill Manager"
     }
 }

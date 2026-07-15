@@ -89,7 +89,20 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
                         id: `cell-${level.value}-${skill.slug}`,
                         options: rangeInclusive(1, rankMax).map((r) => ({
                             value: r as unknown as OneToFour,
-                            label: ["T", "E", "M", "L"][r - 1],
+                            label: [
+                                _loc(
+                                    "PF2E.SETTINGS.Variant.Proficiency.Rank.Trained",
+                                ),
+                                _loc(
+                                    "PF2E.SETTINGS.Variant.Proficiency.Rank.Expert",
+                                ),
+                                _loc(
+                                    "PF2E.SETTINGS.Variant.Proficiency.Rank.Master",
+                                ),
+                                _loc(
+                                    "PF2E.SETTINGS.Variant.Proficiency.Rank.Legendary",
+                                ),
+                            ][r - 1],
                         })),
                     };
                 }),
@@ -143,19 +156,15 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
                 rowLastCell.innerHTML = ((r: ZeroToFour) => {
                     switch (r) {
                         case 0:
-                            return _loc(
-                                "pf2e-skill-issue.proficiency.untrained",
-                            );
+                            return _loc("PF2E.ProficiencyLevel0");
                         case 1:
-                            return _loc("pf2e-skill-issue.proficiency.trained");
+                            return _loc("PF2E.ProficiencyLevel1");
                         case 2:
-                            return _loc("pf2e-skill-issue.proficiency.expert");
+                            return _loc("PF2E.ProficiencyLevel2");
                         case 3:
-                            return _loc("pf2e-skill-issue.proficiency.master");
+                            return _loc("PF2E.ProficiencyLevel3");
                         case 4:
-                            return _loc(
-                                "pf2e-skill-issue.proficiency.legendary",
-                            );
+                            return _loc("PF2E.ProficiencyLevel4");
                     }
                 })(rankFinal);
             }
