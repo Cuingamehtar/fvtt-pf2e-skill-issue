@@ -73,8 +73,8 @@ export class SkillManager {
 
     levelOneUpgrades() {
         return (
-            this.actor.class?.system.trainedSkills.additional ??
-            0 + Math.max(this.actor.abilities.int.base, 0)
+            (this.actor.class?.system.trainedSkills.additional ?? 0) +
+            Math.max(this.actor.abilities.int.base, 0)
         );
     }
 
@@ -88,22 +88,65 @@ export class SkillManager {
             }));
     }
 
-    getSkills(): {
-        slug: SkillSlug;
-        label: string;
-        rank: ZeroToFour;
-    }[] {
+    getRank(
+        slug: SkillSlug | LoreSlug,
+        level: 0 | OneToTwenty | "source" | "total",
+    ): ZeroToFour {
+        if (slug in CONFIG.PF2E.skills) {
+            if (level === "source" || level === 0)
+                return (
+                    this.actor._source.system.skills[slug as SkillSlug]?.rank ??
+                    0
+                );
+            if (level === "total") {
+                this.actor.system.skills[slug]?.rank;
+            }
+            return (
+                this.getData()
+                    .increases?.filter(
+                        (inc) =>
+                            inc.slug === slug && inc.level <= (level as number),
+                    )
+                    .map((inc) => inc.rank)
+                    .reduce(
+                        (acc, e) => Math.max(acc, e) as ZeroToFour,
+                        this.getRank(slug, "source"),
+                    ) ?? 0
+            );
+        }
+        const lore = this.actor.itemTypes.lore.find(
+            (lore) => lore.slug === slug,
+        );
+        if (!lore) return 0;
+        if (level === "source" || level === 0)
+            return lore._source.system.proficient.value;
+        if (level === "total") {
+            lore.system.proficient.value;
+        }
+        return (
+            this.getData()
+                .increases?.filter(
+                    (inc) =>
+                        inc.slug === slug && inc.level <= (level as number),
+                )
+                .map((inc) => inc.rank)
+                .reduce(
+                    (acc, e) => Math.max(acc, e) as ZeroToFour,
+                    this.getRank(slug, "source"),
+                ) ?? 0
+        );
+    }
+
+    getSkills() {
         return objectEntries(CONFIG.PF2E.skills).map(([slug, { label }]) => ({
             slug: slug,
             label: _loc(label),
-            rank: this.actor._source.system.skills[slug]?.rank ?? 0,
         }));
     }
     getLores() {
         return this.actor.itemTypes.lore.map((lore) => ({
             slug: lore.slug as LoreSlug,
             label: lore.name,
-            rank: lore.system.proficient.value,
         }));
     }
 }

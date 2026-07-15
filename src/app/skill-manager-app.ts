@@ -1,4 +1,5 @@
 import {
+    ActorPF2e,
     CharacterPF2e,
     OneToFour,
     SkillSlug,
@@ -47,8 +48,8 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
         super(options);
         this.actor = options.actor;
         this.skillManager = new SkillManager(this.actor);
-        this.actorUpdateEventHook = Hooks.on("updateCharacterPF2e", (actor) => {
-            if ((actor as CharacterPF2e).id !== this.actor.id) {
+        this.actorUpdateEventHook = Hooks.on("updateActor", (actor) => {
+            if ((actor as ActorPF2e).id !== this.actor.id) {
                 return;
             }
             this.render();
@@ -81,40 +82,11 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
                             inc.slug === skill.slug &&
                             inc.level === level.value,
                     );
-                    const selectedOnLevel =
-                        increases.filter((inc) => inc.level === level.value)
-                            .length ?? 0;
-                    const rankEnter = Math.max(
-                        skill.rank,
-                        ...increases
-                            .filter(
-                                (inc) =>
-                                    inc.level < level.value &&
-                                    inc.slug == skill.slug,
-                            )
-                            .map((inc) => inc.rank),
-                    ) as OneToFour;
-                    if (!thisChanged && selectedOnLevel >= level.allowance) {
-                        return {
-                            id: `cell-${level.value}-${skill.slug}`,
-                            rankColorEnter: `si-enter-${rankEnter}`,
-                            rankColorLeave: `si-leave-${rankEnter}`,
-                        };
-                    }
-                    const rankNext = Math.min(rankEnter + 1, 4) as OneToFour;
                     const rankMax = maxRank(level.value);
-                    if (!thisChanged && rankNext > rankMax)
-                        return {
-                            id: `cell-${level.value}-${skill.slug}`,
-                            rankColorEnter: `si-enter-${rankEnter}`,
-                            rankColorLeave: `si-leave-${rankEnter}`,
-                        };
                     return {
                         selected: thisChanged?.rank,
                         id: `cell-${level.value}-${skill.slug}`,
-                        rankColorEnter: `si-enter-${rankEnter}`,
-                        rankColorLeave: `si-leave-${thisChanged?.rank ?? rankEnter}`,
-                        options: rangeInclusive(rankNext, rankMax).map((r) => ({
+                        options: rangeInclusive(1, rankMax).map((r) => ({
                             value: r as unknown as OneToFour,
                             label: ["T", "E", "M", "L"][r - 1],
                         })),
@@ -125,6 +97,7 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
         return {
             ...context,
             ...{
+                increases,
                 levels,
                 skills,
                 note: flag.note ?? "",
@@ -137,6 +110,94 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
         options: fa.ApplicationRenderOptions,
     ) {
         super._onRender(context, options);
+
+        const { skills, increases, levels } = context;
+
+        skills.forEach((skill) => {
+            const rowFirstCell = this.element.querySelector(`td#${skill.slug}`);
+            const baseRank = this.skillManager.getRank(skill.slug, 0);
+            rowFirstCell?.classList.remove(
+                "si-enter-0",
+                "si-enter-1",
+                "si-enter-2",
+                "si-enter-3",
+                "si-enter-4",
+            );
+            rowFirstCell?.classList.remove(
+                "si-leave-0",
+                "si-leave-1",
+                "si-leave-2",
+                "si-leave-3",
+                "si-leave-4",
+            );
+            rowFirstCell?.classList.add(
+                `si-enter-${baseRank}`,
+                `si-leave-${baseRank}`,
+            );
+            skill.cells.forEach((cell, i) => {
+                const cellHTML = this.element.querySelector(`td#${cell.id}`);
+                if (!cellHTML) return;
+
+                const level = levels[i];
+                const rankEnter = this.skillManager.getRank(
+                    skill.slug,
+                    (level.value - 1) as 0 | OneToTwenty,
+                );
+                cellHTML.classList.remove(
+                    "si-enter-0",
+                    "si-enter-1",
+                    "si-enter-2",
+                    "si-enter-3",
+                    "si-enter-4",
+                );
+                cellHTML.classList.remove(
+                    "si-leave-0",
+                    "si-leave-1",
+                    "si-leave-2",
+                    "si-leave-3",
+                    "si-leave-4",
+                );
+                cellHTML.classList.add(`si-enter-${rankEnter}`);
+                const thisChanged = cell.selected;
+                cellHTML.classList.add(
+                    `si-leave-${thisChanged ? thisChanged : rankEnter}`,
+                );
+                const rankNext = rankEnter + 1;
+                const rankMax = maxRank(level.value);
+                const selectedOnLevel =
+                    increases.filter((inc) => inc.level === level.value)
+                        .length ?? 0;
+                const locked =
+                    !thisChanged &&
+                    (rankNext > rankMax || selectedOnLevel >= level.allowance);
+                if (locked) {
+                    cellHTML
+                        .querySelector("p")
+                        ?.classList.remove("si-disabled");
+                    cellHTML
+                        .querySelector("select")
+                        ?.classList.add("si-disabled");
+                    return;
+                }
+
+                cellHTML.querySelector("p")?.classList.add("si-disabled");
+                cellHTML
+                    .querySelector("select")
+                    ?.classList.remove("si-disabled");
+
+                rangeInclusive(1, rankMax).forEach((rank) => {
+                    const option = cellHTML.querySelector(
+                        `option[value="${rank}"]`,
+                    );
+                    if (!option) return;
+                    if (rank < rankNext) {
+                        option.classList.add("si-disabled");
+                    } else {
+                        option.classList.remove("si-disabled");
+                    }
+                });
+            });
+        });
     }
 
     static async submitFormHandler(
@@ -179,14 +240,13 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
 }
 
 interface SkillManagerAppContext extends fa.ApplicationRenderContext {
+    increases: NonNullable<SkillManagerData["increases"]>;
     levels: { value: OneToTwenty; label: string; allowance: number }[];
     skills: {
         slug: SkillSlug | LoreSlug;
         label: string;
         cells: {
             id: string;
-            rankColorEnter: string;
-            rankColorLeave: string;
             options?: { value: OneToFour; label: string }[];
             selected?: OneToFour;
         }[];
