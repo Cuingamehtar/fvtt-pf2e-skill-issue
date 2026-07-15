@@ -4,7 +4,7 @@
             <th>Skill</th>{{#each levels as |level|}}<th>
                 <p>{{level.label}}</p>
                 <p>({{level.allowance}})</p>
-            </th>{{/each}}
+            </th>{{/each}}<th>{{localize "pf2e-skill-issue.final-proficiency"}}</th>
         </tr>
         {{#each skills as |skill|}}
         <tr>
@@ -21,10 +21,11 @@
                     {{/each}}
                 </select>
             </td>{{/each}}
+            <td class="si-bg" id="{{slug}}-final" style="text-align: center;"></td>
         </tr>{{/each}}
     </table>
     <fieldset>
-        <legend>Note</legend>
+        <legend>{{localize "pf2e-skill-issue.note"}}</legend>
         <textarea name="note">{{note}}</textarea>
     </fieldset>
 </div>

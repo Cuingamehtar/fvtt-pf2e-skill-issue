@@ -1,5 +1,6 @@
 {
     "pf2e-skill-issue": {
+        "edit-skills": "Edit Skills",
         "levels": {
             "1": "1st",
             "2": "2nd",
@@ -21,6 +22,15 @@
             "18": "18th",
             "19": "19th",
             "20": "20th"
+        },
+        "note": "Note",
+        "final-proficiency": "Final Proficiency",
+        "proficiency": {
+            "untrained": "Untrained",
+            "trained": "Trained",
+            "expert": "Expert",
+            "master": "Master",
+            "legendary": "Legendary"
         }
     }
 }

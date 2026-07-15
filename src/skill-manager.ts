@@ -99,7 +99,7 @@ export class SkillManager {
                     0
                 );
             if (level === "total") {
-                this.actor.system.skills[slug]?.rank;
+                return this.actor.system.skills[slug]?.rank;
             }
             return (
                 this.getData()
@@ -121,7 +121,7 @@ export class SkillManager {
         if (level === "source" || level === 0)
             return lore._source.system.proficient.value;
         if (level === "total") {
-            lore.system.proficient.value;
+            return lore.system.proficient.value;
         }
         return (
             this.getData()

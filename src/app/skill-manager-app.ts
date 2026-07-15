@@ -3,6 +3,7 @@ import {
     CharacterPF2e,
     OneToFour,
     SkillSlug,
+    ZeroToFour,
 } from "@7h3laughingman/pf2e-types";
 import { maxRank, objectEntries, SkillManager } from "../skill-manager";
 import { LoreSlug, OneToTwenty, SkillManagerData } from "../data";
@@ -116,24 +117,49 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
         skills.forEach((skill) => {
             const rowFirstCell = this.element.querySelector(`td#${skill.slug}`);
             const baseRank = this.skillManager.getRank(skill.slug, 0);
-            rowFirstCell?.classList.remove(
-                "si-enter-0",
-                "si-enter-1",
-                "si-enter-2",
-                "si-enter-3",
-                "si-enter-4",
-            );
-            rowFirstCell?.classList.remove(
-                "si-leave-0",
-                "si-leave-1",
-                "si-leave-2",
-                "si-leave-3",
-                "si-leave-4",
-            );
+            stripGradientClasses(rowFirstCell);
             rowFirstCell?.classList.add(
                 `si-enter-${baseRank}`,
                 `si-leave-${baseRank}`,
             );
+            const rowLastCell = this.element.querySelector(
+                `td#${skill.slug}-final`,
+            );
+            if (rowLastCell) {
+                const rankLastLevel = this.skillManager.getRank(
+                    skill.slug,
+                    levels[levels.length - 1].value,
+                );
+                const rankFinal = this.skillManager.getRank(
+                    skill.slug,
+                    "total",
+                );
+                stripGradientClasses(rowLastCell);
+
+                rowLastCell.classList.add(
+                    `si-enter-${rankLastLevel}`,
+                    `si-leave-${rankFinal}`,
+                );
+                rowLastCell.innerHTML = ((r: ZeroToFour) => {
+                    switch (r) {
+                        case 0:
+                            return _loc(
+                                "pf2e-skill-issue.proficiency.untrained",
+                            );
+                        case 1:
+                            return _loc("pf2e-skill-issue.proficiency.trained");
+                        case 2:
+                            return _loc("pf2e-skill-issue.proficiency.expert");
+                        case 3:
+                            return _loc("pf2e-skill-issue.proficiency.master");
+                        case 4:
+                            return _loc(
+                                "pf2e-skill-issue.proficiency.legendary",
+                            );
+                    }
+                })(rankFinal);
+            }
+
             skill.cells.forEach((cell, i) => {
                 const cellHTML = this.element.querySelector(`td#${cell.id}`);
                 if (!cellHTML) return;
@@ -143,20 +169,7 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
                     skill.slug,
                     (level.value - 1) as 0 | OneToTwenty,
                 );
-                cellHTML.classList.remove(
-                    "si-enter-0",
-                    "si-enter-1",
-                    "si-enter-2",
-                    "si-enter-3",
-                    "si-enter-4",
-                );
-                cellHTML.classList.remove(
-                    "si-leave-0",
-                    "si-leave-1",
-                    "si-leave-2",
-                    "si-leave-3",
-                    "si-leave-4",
-                );
+                stripGradientClasses(cellHTML);
                 cellHTML.classList.add(`si-enter-${rankEnter}`);
                 const thisChanged = cell.selected;
                 cellHTML.classList.add(
@@ -234,7 +247,7 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
 
     override async close(options?: fa.ApplicationClosingOptions) {
         await super.close(options);
-        Hooks.off("updateCharacterPF2e", this.actorUpdateEventHook);
+        Hooks.off("updateActor", this.actorUpdateEventHook);
         return this;
     }
 }
@@ -260,3 +273,17 @@ const rangeInclusive = (from: number, to: number) =>
 const truthy = <T>(e: T): e is NonNullable<T> => Boolean(e);
 
 const localeCompare = (a: string, b: string) => a.localeCompare(b);
+
+const stripGradientClasses = (e: Element | null) =>
+    e?.classList.remove(
+        "si-enter-0",
+        "si-enter-1",
+        "si-enter-2",
+        "si-enter-3",
+        "si-enter-4",
+        "si-leave-0",
+        "si-leave-1",
+        "si-leave-2",
+        "si-leave-3",
+        "si-leave-4",
+    );

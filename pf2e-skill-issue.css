@@ -18,7 +18,7 @@
     --bg-color-enter: var(--color-proficiency-master);
 }
 .si-enter-4 {
-    --bg-color-enter: var(--color-proficiency-legend);
+    --bg-color-enter: var(--color-proficiency-legendary);
 }
 .si-leave-0 {
     --bg-color-leave: var(--color-proficiency-untrained);
@@ -33,7 +33,7 @@
     --bg-color-leave: var(--color-proficiency-master);
 }
 .si-leave-4 {
-    --bg-color-leave: var(--color-proficiency-legend);
+    --bg-color-leave: var(--color-proficiency-legendary);
 }
 
 .si-disabled {
