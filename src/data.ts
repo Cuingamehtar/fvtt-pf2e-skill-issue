@@ -1,4 +1,4 @@
-import { SkillSlug, ZeroToFour } from "@7h3laughingman/pf2e-types";
+import { OneToFour, SkillSlug, ZeroToFour } from "@7h3laughingman/pf2e-types";
 
 export type LoreSlug = `${string}-lore`;
 export type OneToTwenty =
@@ -27,7 +27,7 @@ export type SkillManagerData = {
     increases?: {
         slug: SkillSlug | LoreSlug;
         level: OneToTwenty;
-        rank: ZeroToFour;
+        rank: OneToFour;
     }[];
     overrides?: Record<SkillSlug | LoreSlug, ZeroToFour>;
     note?: string;

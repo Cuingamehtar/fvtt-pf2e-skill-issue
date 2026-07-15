@@ -1,0 +1,25 @@
+<div class="scrollable" style="overflow-y: scroll">
+    <table>
+        <tr>
+            <th>Skill</th>{{#each levels as |level|}}<th>{{level.label}}</th>{{/each}}
+        </tr>
+        {{#each skills as |skill|}}
+        <tr>
+            <td>{{skill.label}}</td>
+            {{#each cells as |cell|}}<td class="{{rankColorEnter}} {{rankColorLeave}} si-bg">{{#if (eq options.length
+                0)}}X{{else}}<select name="{{id}}">
+                    <option value="-" {{#if (not ../selected)}} selected{{/if}}>-</option>
+                    {{#each options as |option|}}
+                    <option value="{{option.value}}" {{#if (eq ../selected option.value)}} selected{{/if}}>
+                        {{option.label}}
+                    </option>
+                    {{/each}}
+                </select>{{/if}}
+            </td>{{/each}}
+        </tr>{{/each}}
+    </table>
+    <fieldset>
+        <legend>Note</legend>
+        <textarea name="note">{{note}}</textarea>
+    </fieldset>
+</div>

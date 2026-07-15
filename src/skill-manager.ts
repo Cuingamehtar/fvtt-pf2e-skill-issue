@@ -1,4 +1,8 @@
-import { CharacterPF2e, ZeroToFour } from "@7h3laughingman/pf2e-types";
+import {
+    CharacterPF2e,
+    SkillSlug,
+    ZeroToFour,
+} from "@7h3laughingman/pf2e-types";
 import { MODULE_ID } from "./module";
 import {
     LoreSlug,
@@ -15,14 +19,14 @@ export class SkillManager {
         this.actor = actor;
     }
 
-    #getData() {
+    getData() {
         const data = this.actor.getFlag(MODULE_ID, "skill-data") as
             SkillManagerData | undefined;
         return data ? migrateData(data) : newData;
     }
 
     prepareData() {
-        const data = this.#getData();
+        const data = this.getData();
         const ranks =
             data.increases
                 ?.filter((e) => this.actor.level >= e.level)
@@ -60,15 +64,47 @@ export class SkillManager {
         });
     }
 
-    #levelsWithSkillUpgrades() {
-        return this.actor.class?.system.skillIncreaseLevels.value ?? [];
+    levelsWithSkillUpgrades() {
+        return [
+            1,
+            ...(this.actor.class?.system.skillIncreaseLevels.value ?? []),
+        ] as OneToTwenty[];
     }
 
-    #levelOneUpgrades() {
+    levelOneUpgrades() {
         return (
             this.actor.class?.system.trainedSkills.additional ??
             0 + Math.max(this.actor.abilities.int.base, 0)
         );
+    }
+
+    getLevels() {
+        return this.levelsWithSkillUpgrades()
+            .filter((l) => this.actor.level >= l)
+            .map((level) => ({
+                value: level,
+                label: _loc("pf2e-skill-issue.levels." + level),
+                allowance: level == 1 ? this.levelOneUpgrades() : 1,
+            }));
+    }
+
+    getSkills(): {
+        slug: SkillSlug;
+        label: string;
+        rank: ZeroToFour;
+    }[] {
+        return objectEntries(CONFIG.PF2E.skills).map(([slug, { label }]) => ({
+            slug: slug,
+            label: _loc(label),
+            rank: this.actor._source.system.skills[slug]?.rank ?? 0,
+        }));
+    }
+    getLores() {
+        return this.actor.itemTypes.lore.map((lore) => ({
+            slug: lore.slug as LoreSlug,
+            label: lore.name,
+            rank: lore.system.proficient.value,
+        }));
     }
 }
 
@@ -85,7 +121,18 @@ function updateValue(
 const objectKeys = <T extends object>(obj: T): (keyof T)[] => {
     return Object.keys(obj) as (keyof T)[];
 };
+export const objectEntries = <T extends object>(
+    obj: T,
+): [keyof T, T[keyof T]][] => {
+    return Object.entries(obj) as [keyof T, T[keyof T]][];
+};
 
-const maxRank = (level: OneToTwenty) => {
+export const fromEntries = <K extends string | number | symbol, V>(
+    entries: [K, V][],
+): Record<K, V> => {
+    return Object.fromEntries(entries) as Record<K, V>;
+};
+
+export const maxRank = (level: OneToTwenty) => {
     return level >= 15 ? 4 : level >= 7 ? 3 : level >= 2 ? 2 : 1;
 };
