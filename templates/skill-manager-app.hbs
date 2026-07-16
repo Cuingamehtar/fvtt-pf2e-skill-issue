@@ -16,7 +16,7 @@
         <tbody>
             {{#each skills as |skill|}}
                 <tr class="si-tr">
-                    <td class="si-td si-bg" id="{{slug}}">{{skill.label}}</td>
+                    <td class="si-td si-bg" id="skill-{{slug}}">{{skill.label}}</td>
                     {{#each cells as |cell|}}
                         <td id="{{id}}" class="si-td" style="text-align:center;">
                             <p class="si-disabled si-lock"><i class="fa-solid fa-lock"></i></p>
@@ -31,7 +31,7 @@
                             </select>
                         </td>
                     {{/each}}
-                    <td class="si-td" id="{{slug}}-override" style="text-align:center;">
+                    <td class="si-td" id="skill-{{slug}}-override" style="text-align:center;">
                         <select class="si-select" name="cell-override-{{slug}}">
                             <option value="-" {{#if (not skill.override)}} selected{{/if}}>&mdash;
                             </option>
@@ -42,7 +42,7 @@
                             {{/each}}
                         </select>
                     </td>
-                    <td class="si-td si-bg" id="{{slug}}-final" style="text-align: center;"></td>
+                    <td class="si-td si-bg" id="skill-{{slug}}-final" style="text-align: center;"></td>
                 </tr>
             {{/each}}
         </tbody>

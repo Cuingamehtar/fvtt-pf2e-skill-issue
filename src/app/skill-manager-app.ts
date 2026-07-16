@@ -159,20 +159,22 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
         const { skills, increases, levels, ranks } = context;
 
         skills.forEach((skill) => {
-            const rowFirstCell = this.element.querySelector(`td#${skill.slug}`);
+            const rowFirstCell = this.element.querySelector(
+                `td#skill-${skill.slug}`,
+            );
             const baseRank = this.skillManager.getRank(skill.slug, 0);
             stripGradientClasses(rowFirstCell);
             rowFirstCell?.classList.add(`si-enter-${baseRank}`, `si-leave-0`);
 
             const rowOverride = this.element.querySelector(
-                `td#${skill.slug}-override`,
+                `td#skill-${skill.slug}-override`,
             );
             if (rowOverride) {
                 stripGradientClasses(rowOverride);
             }
 
             const rowLastCell = this.element.querySelector(
-                `td#${skill.slug}-final`,
+                `td#skill-${skill.slug}-final`,
             );
             if (rowLastCell) {
                 const rankFinal = this.skillManager.getRank(
