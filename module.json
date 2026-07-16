@@ -4,7 +4,7 @@
   "version": "#{VERSION}#",
   "compatibility": {
     "minimum": "14",
-    "verified": "14.360"
+    "verified": "14.365"
   },
   "esmodules": [
     "pf2e-skill-issue.js"
