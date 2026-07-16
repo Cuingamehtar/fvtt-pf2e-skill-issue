@@ -1,31 +1,54 @@
 <div class="scrollable">
-    <table>
-        <tr>
-            <th>Skill</th>{{#each levels as |level|}}<th>
-                <p>{{level.label}}</p>
-                <p>({{level.allowance}})</p>
-            </th>{{/each}}<th>{{localize "pf2e-skill-issue.final-proficiency"}}</th>
-        </tr>
-        {{#each skills as |skill|}}
-        <tr>
-            <td class="si-bg" id="{{slug}}">{{skill.label}}</td>
-            {{#each cells as |cell|}}<td id="{{id}}" class="si-bg" style="vertical-align: middle;">
-                <p class="si-disabled" style="text-align: center;"><i class="fa-solid fa-lock"></i></p><select
-                    name="{{id}}" style="appearance: none; -webkit-appearance: none; -moz-appearance: none;">
-                    <option value="-" {{#if (not ../selected)}} selected{{/if}}>&mdash;
-                    </option>
-                    {{#each options as |option|}}
-                    <option value="{{option.value}}" {{#if (eq ../selected option.value)}} selected{{/if}}>
-                        {{option.label}}
-                    </option>
+    <table class="si-table">
+        <thead>
+            <tr>
+                <th>{{localize "pf2e-skill-issue.skill"}}</th>
+                {{#each levels as |level|}}
+                    <th style="text-align:center;">
+                        <p>{{level.label}}</p>
+                        <p>({{level.allowance}})</p>
+                    </th>
+                {{/each}}
+                <th>{{localize "pf2e-skill-issue.override"}}</th>
+                <th>{{localize "pf2e-skill-issue.final-proficiency"}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each skills as |skill|}}
+                <tr class="si-tr">
+                    <td class="si-td si-bg" id="{{slug}}">{{skill.label}}</td>
+                    {{#each cells as |cell|}}
+                        <td id="{{id}}" class="si-td si-bg" style="text-align:center;">
+                            <p class="si-disabled si-lock"><i class="fa-solid fa-lock"></i></p>
+                            <select class="si-select" name="{{id}}">
+                                <option value="-" {{#if (not ../selected)}} selected{{/if}}>&mdash;
+                                </option>
+                                {{#each @root/ranks as |rank|}}
+                                    <option value="{{@index}}" {{#if (eq cell/selected @index)}} selected{{/if}}>
+                                        {{localize rank.labelShort}}
+                                    </option>
+                                {{/each}}
+                            </select>
+                        </td>
                     {{/each}}
-                </select>
-            </td>{{/each}}
-            <td class="si-bg" id="{{slug}}-final" style="text-align: center;"></td>
-        </tr>{{/each}}
+                    <td class="si-td si-bg" id="{{slug}}-override" style="text-align:center;">
+                        <select class="si-select" name="cell-override-{{slug}}">
+                            <option value="-" {{#if (not skill.override)}} selected{{/if}}>&mdash;
+                            </option>
+                            {{#each @root/ranks as |rank|}}
+                                <option value="{{@index}}" {{#if (eq skill.override @index)}} selected{{/if}}>
+                                    {{localize rank.labelShort}}
+                                </option>
+                            {{/each}}
+                        </select>
+                    </td>
+                    <td class="si-td si-bg" id="{{slug}}-final" style="text-align: center;"></td>
+                </tr>
+            {{/each}}
+        </tbody>
     </table>
     <fieldset>
         <legend>{{localize "pf2e-skill-issue.note"}}</legend>
-        <textarea name="note">{{note}}</textarea>
+        <textarea name="note" placeholder="{{localize "pf2e-skill-issue.note-placeholder"}}">{{note}}</textarea>
     </fieldset>
 </div>

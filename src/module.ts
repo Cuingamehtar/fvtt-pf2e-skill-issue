@@ -22,12 +22,17 @@ Hooks.on("init", () => {
         const { actor, form } = sheet as CharacterSheetPF2e<CharacterPF2e>;
         const header = form.querySelector(".tab.proficiencies header");
         if (!header) return;
-        const btn = document.createElement("a");
-        btn.innerHTML = '<i class="fa-solid fa-fw fa-edit"></i>';
+        const div = document.createElement("div");
+        div.classList.add("controls");
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.classList.add("si-open-manager");
+        btn.innerHTML = `<i class="fa-solid fa-fw fa-edit"></i> ${_loc("pf2e-skill-issue.skill-manager-title")}`;
         btn.dataset.tooltip = _loc("pf2e-skill-issue.edit-skills");
-        header.innerHTML += btn.outerHTML;
+        div.innerHTML += btn.outerHTML;
+        header.innerHTML += div.outerHTML;
         header
-            .querySelector("a")
+            .querySelector("button.si-open-manager")
             ?.addEventListener("click", () =>
                 new SkillManagerApp({ actor }).render(true),
             );

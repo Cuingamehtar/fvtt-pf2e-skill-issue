@@ -24,6 +24,9 @@
             "20": "20th"
         },
         "note": "Note",
+        "skill": "Skill",
+        "note-placeholder": "Text field to keep additional information",
+        "override": "Override",
         "final-proficiency": "Final Proficiency",
         "skill-manager-title": "Skill Manager"
     }

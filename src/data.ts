@@ -23,7 +23,7 @@ export type OneToTwenty =
     | 19
     | 20;
 
-export type SkillManagerData = {
+type SkillManagerDataV1 = {
     increases?: {
         slug: SkillSlug | LoreSlug;
         level: OneToTwenty;
@@ -33,6 +33,8 @@ export type SkillManagerData = {
     note?: string;
     version: number;
 };
+
+export type SkillManagerData = SkillManagerDataV1;
 
 export function migrateData(data: SkillManagerData) {
     while (migrations[data.version]) {

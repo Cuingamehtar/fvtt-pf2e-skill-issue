@@ -90,7 +90,7 @@ export class SkillManager {
 
     getRank(
         slug: SkillSlug | LoreSlug,
-        level: 0 | OneToTwenty | "source" | "total",
+        level: 0 | OneToTwenty | "source" | "override" | "final",
     ): ZeroToFour {
         if (slug in CONFIG.PF2E.skills) {
             if (level === "source" || level === 0)
@@ -98,7 +98,13 @@ export class SkillManager {
                     this.actor._source.system.skills[slug as SkillSlug]?.rank ??
                     0
                 );
-            if (level === "total") {
+            if (level === "override") {
+                return (
+                    this.getData().overrides?.[slug] ??
+                    this.getRank(slug, this.actor.level as OneToTwenty)
+                );
+            }
+            if (level === "final") {
                 return this.actor.system.skills[slug]?.rank;
             }
             return (
@@ -120,7 +126,13 @@ export class SkillManager {
         if (!lore) return 0;
         if (level === "source" || level === 0)
             return lore._source.system.proficient.value;
-        if (level === "total") {
+        if (level === "override") {
+            return (
+                this.getData().overrides?.[slug] ??
+                this.getRank(slug, this.actor.level as OneToTwenty)
+            );
+        }
+        if (level === "final") {
             return lore.system.proficient.value;
         }
         return (

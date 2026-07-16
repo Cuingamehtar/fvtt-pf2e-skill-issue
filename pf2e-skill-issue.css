@@ -1,41 +1,90 @@
 .si-bg {
     background: linear-gradient(
         to right,
-        var(--bg-color-enter),
-        var(--bg-color-leave)
+        var(--si-color-enter),
+        var(--si-color-leave)
     );
 }
 .si-enter-0 {
-    --bg-color-enter: var(--color-proficiency-untrained);
+    --si-color-enter: var(--color-proficiency-untrained);
 }
 .si-enter-1 {
-    --bg-color-enter: var(--color-proficiency-trained);
+    --si-color-enter: var(--color-proficiency-trained);
 }
 .si-enter-2 {
-    --bg-color-enter: var(--color-proficiency-expert);
+    --si-color-enter: var(--color-proficiency-expert);
 }
 .si-enter-3 {
-    --bg-color-enter: var(--color-proficiency-master);
+    --si-color-enter: var(--color-proficiency-master);
 }
 .si-enter-4 {
-    --bg-color-enter: var(--color-proficiency-legendary);
+    --si-color-enter: var(--color-proficiency-legendary);
 }
 .si-leave-0 {
-    --bg-color-leave: var(--color-proficiency-untrained);
+    --si-color-leave: var(--color-proficiency-untrained);
 }
 .si-leave-1 {
-    --bg-color-leave: var(--color-proficiency-trained);
+    --si-color-leave: var(--color-proficiency-trained);
 }
 .si-leave-2 {
-    --bg-color-leave: var(--color-proficiency-expert);
+    --si-color-leave: var(--color-proficiency-expert);
 }
 .si-leave-3 {
-    --bg-color-leave: var(--color-proficiency-master);
+    --si-color-leave: var(--color-proficiency-master);
 }
 .si-leave-4 {
-    --bg-color-leave: var(--color-proficiency-legendary);
+    --si-color-leave: var(--color-proficiency-legendary);
 }
 
 .si-disabled {
     display: none;
+}
+
+.si-select {
+    height: 33px;
+    width: 33px;
+    text-align: center;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding: var(--space-1);
+    border: 1px solid var(--sidebar-title);
+}
+
+.si-tr {
+    height: 34px;
+    border-top: 1px solid var(--sidebar-title);
+}
+
+.si-td {
+    vertical-align: middle;
+    padding: 0.25rem 1rem;
+}
+
+.si-lock {
+    text-align: center;
+    margin: 0pt;
+}
+
+.si-select option[value="-"],
+.si-select option[value="0"],
+.si-select:has(option[value="-"]:checked),
+.si-select:has(option[value="0"]:checked) {
+    background: var(--color-proficiency-untrained);
+}
+.si-select option[value="1"],
+.si-select:has(option[value="1"]:checked) {
+    background: var(--color-proficiency-trained);
+}
+.si-select option[value="2"],
+.si-select:has(option[value="2"]:checked) {
+    background: var(--color-proficiency-expert);
+}
+.si-select option[value="3"],
+.si-select:has(option[value="3"]:checked) {
+    background: var(--color-proficiency-master);
+}
+.si-select option[value="4"],
+.si-select:has(option[value="4"]:checked) {
+    background: var(--color-proficiency-legendary);
 }
