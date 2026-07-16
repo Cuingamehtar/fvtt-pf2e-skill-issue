@@ -3,7 +3,7 @@
   "title": "PF2e/SF2e Skill Issue",
   "version": "#{VERSION}#",
   "compatibility": {
-    "minimum": "13",
+    "minimum": "14",
     "verified": "14.360"
   },
   "esmodules": [
