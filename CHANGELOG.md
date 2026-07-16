@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.7] - 2026-07-17
+
+### Added
+
+- Add Roguelike, Plan the Future and Unlimited Choice settings
+
 ## [0.6] - 2026-07-16
 
 ### Fixed

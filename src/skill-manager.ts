@@ -11,6 +11,8 @@ import {
     OneToTwenty,
     SkillManagerData,
 } from "./data";
+import { getSetting } from "./settings";
+import { rangeInclusive } from "./utils";
 
 export class SkillManager {
     actor: CharacterPF2e;
@@ -65,10 +67,14 @@ export class SkillManager {
     }
 
     levelsWithSkillUpgrades() {
-        return [
-            1,
-            ...(this.actor.class?.system.skillIncreaseLevels.value ?? []),
-        ] as OneToTwenty[];
+        if (getSetting("roguelike")) {
+            return rangeInclusive(1, 20) as OneToTwenty[];
+        } else {
+            return [
+                1,
+                ...(this.actor.class?.system.skillIncreaseLevels.value ?? []),
+            ] as OneToTwenty[];
+        }
     }
 
     levelOneUpgrades() {
@@ -80,7 +86,7 @@ export class SkillManager {
 
     getLevels() {
         return this.levelsWithSkillUpgrades()
-            .filter((l) => this.actor.level >= l)
+            .filter((l) => getSetting("plan-ahead") || this.actor.level >= l)
             .map((level) => ({
                 value: level,
                 label: _loc("pf2e-skill-issue.levels." + level),

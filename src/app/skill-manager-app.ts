@@ -13,6 +13,8 @@ import {
     SkillManager,
 } from "../skill-manager";
 import { LoreSlug, OneToTwenty, SkillManagerData } from "../data";
+import { localeCompare, rangeInclusive, truthy } from "../utils";
+import { getSetting } from "../settings";
 
 type UnknownHookHandler = (p: unknown) => void;
 
@@ -207,7 +209,9 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
                         .length ?? 0;
                 const locked =
                     !thisChanged &&
-                    (rankNext > rankMax || selectedOnLevel >= level.allowance);
+                    (rankNext > rankMax ||
+                        (selectedOnLevel >= level.allowance &&
+                            !getSetting("unlimited")));
                 if (locked) {
                     cellHTML
                         .querySelector("p")
@@ -319,13 +323,6 @@ interface SkillManagerAppContext extends fa.ApplicationRenderContext {
     }[];
     note: string;
 }
-
-const rangeInclusive = (from: number, to: number) =>
-    Array.fromRange(to - from + 1, from);
-
-const truthy = <T>(e: T): e is NonNullable<T> => Boolean(e);
-
-const localeCompare = (a: string, b: string) => a.localeCompare(b);
 
 const stripGradientClasses = (e: Element | null) =>
     e?.classList.remove(

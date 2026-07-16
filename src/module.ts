@@ -1,10 +1,12 @@
 import { CharacterPF2e, CharacterSheetPF2e } from "@7h3laughingman/pf2e-types";
 import { SkillManager } from "./skill-manager";
 import { SkillManagerApp } from "./app/skill-manager-app";
+import { registerSettings } from "./settings";
 
 export const MODULE_ID = "pf2e-skill-issue";
 
 Hooks.on("init", () => {
+    registerSettings();
     libWrapper.register(
         MODULE_ID,
         "CONFIG.PF2E.Actor.documentClasses.character.prototype.prepareDataFromItems",

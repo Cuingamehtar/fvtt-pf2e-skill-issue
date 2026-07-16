@@ -28,6 +28,20 @@
         "note-placeholder": "Text field to keep additional information",
         "override": "Override",
         "final-proficiency": "Final Proficiency",
-        "skill-manager-title": "Skill Manager"
+        "skill-manager-title": "Skill Manager",
+        "settings": {
+            "roguelike": {
+                "name": "Roguelike Mode",
+                "hint": "Treat every class as if they were a rogue - grants a skill increase at every level."
+            },
+            "plan-ahead": {
+                "name": "Plot the Future",
+                "hint": "Allows preplanning all allocations up to level 20 in advance. They won't take effect until you reach the required level."
+            },
+            "unlimited": {
+                "name": "Unlimited Choice",
+                "hint": "Disables allocation cap on every level. It's up to the user to keep track of them."
+            }
+        }
     }
 }
