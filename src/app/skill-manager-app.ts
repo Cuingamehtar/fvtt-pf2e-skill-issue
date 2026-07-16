@@ -162,29 +162,13 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
             const rowFirstCell = this.element.querySelector(`td#${skill.slug}`);
             const baseRank = this.skillManager.getRank(skill.slug, 0);
             stripGradientClasses(rowFirstCell);
-            rowFirstCell?.classList.add(
-                `si-enter-${baseRank}`,
-                `si-leave-${baseRank}`,
-            );
-
-            const rankLastLevel = this.skillManager.getRank(
-                skill.slug,
-                levels[levels.length - 1].value,
-            );
-            const rankOverride = this.skillManager.getRank(
-                skill.slug,
-                "override",
-            );
+            rowFirstCell?.classList.add(`si-enter-${baseRank}`, `si-leave-0`);
 
             const rowOverride = this.element.querySelector(
                 `td#${skill.slug}-override`,
             );
             if (rowOverride) {
                 stripGradientClasses(rowOverride);
-                rowOverride.classList.add(
-                    `si-enter-${rankLastLevel}`,
-                    `si-leave-${rankOverride}`,
-                );
             }
 
             const rowLastCell = this.element.querySelector(
@@ -198,7 +182,7 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
                 stripGradientClasses(rowLastCell);
 
                 rowLastCell.classList.add(
-                    `si-enter-${rankOverride}`,
+                    `si-enter-0`,
                     `si-leave-${rankFinal}`,
                 );
                 rowLastCell.innerHTML = _loc(ranks[rankFinal].labelFull);
@@ -213,12 +197,7 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
                     skill.slug,
                     (level.value - 1) as 0 | OneToTwenty,
                 );
-                stripGradientClasses(cellHTML);
-                cellHTML.classList.add(`si-enter-${rankEnter}`);
                 const thisChanged = cell.selected;
-                cellHTML.classList.add(
-                    `si-leave-${thisChanged ? thisChanged : rankEnter}`,
-                );
                 const rankNext = rankEnter + 1;
                 const rankMax = maxRank(level.value);
                 const selectedOnLevel =

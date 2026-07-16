@@ -2,11 +2,13 @@
     background: linear-gradient(
         to right,
         var(--si-color-enter),
+        transparent 20%,
+        transparent 80%,
         var(--si-color-leave)
     );
 }
 .si-enter-0 {
-    --si-color-enter: var(--color-proficiency-untrained);
+    --si-color-enter: transparent;
 }
 .si-enter-1 {
     --si-color-enter: var(--color-proficiency-trained);
@@ -21,7 +23,7 @@
     --si-color-enter: var(--color-proficiency-legendary);
 }
 .si-leave-0 {
-    --si-color-leave: var(--color-proficiency-untrained);
+    --si-color-leave: transparent;
 }
 .si-leave-1 {
     --si-color-leave: var(--color-proficiency-trained);
@@ -48,12 +50,12 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     padding: var(--space-1);
-    border: 1px solid var(--sidebar-title);
+    border: 1px solid var(--color-text-primary);
 }
 
 .si-tr {
     height: 34px;
-    border-top: 1px solid var(--sidebar-title);
+    /* border-top: 1px solid var(--sidebar-title); */
 }
 
 .si-td {
@@ -67,24 +69,32 @@
 }
 
 .si-select option[value="-"],
+.si-select:has(option[value="-"]:checked) {
+    background: transparent;
+}
+
 .si-select option[value="0"],
-.si-select:has(option[value="-"]:checked),
 .si-select:has(option[value="0"]:checked) {
     background: var(--color-proficiency-untrained);
+    color: var(--sidebar-title);
 }
 .si-select option[value="1"],
 .si-select:has(option[value="1"]:checked) {
     background: var(--color-proficiency-trained);
+    color: var(--sidebar-title);
 }
 .si-select option[value="2"],
 .si-select:has(option[value="2"]:checked) {
     background: var(--color-proficiency-expert);
+    color: var(--sidebar-title);
 }
 .si-select option[value="3"],
 .si-select:has(option[value="3"]:checked) {
     background: var(--color-proficiency-master);
+    color: var(--sidebar-title);
 }
 .si-select option[value="4"],
 .si-select:has(option[value="4"]:checked) {
     background: var(--color-proficiency-legendary);
+    color: var(--sidebar-title);
 }
