@@ -29,6 +29,17 @@
         "override": "Override",
         "final-proficiency": "Final Proficiency",
         "skill-manager-title": "Skill Manager",
+        "tooltip": {
+            "granted-by": {
+                "background": "{proficiency}<hr /><p>This proficiency is automatically provided by the Background Item. This only considers skills listed in the details tab, and not rule elements.</p>",
+                "class": "{proficiency}<hr /><p>This proficiency is automatically provided by the Class Item. This only considers skills listed in the details tab, and not rule elements.</p>",
+                "source": "{proficiency}<hr /><p>This proficiency was manually set in the source data on the character's sheet.</p>"
+            },
+            "locked-because": {
+                "no-valid-upgrade-rank": "The skill is already at the highest proficiency level for this character level.",
+                "exhausted-allowance": "You have reached the maximum number of improvements you can choose at this level."
+            }
+        },
         "settings": {
             "roguelike": {
                 "name": "Roguelike Mode",
@@ -41,6 +52,10 @@
             "unlimited": {
                 "name": "Unlimited Choice",
                 "hint": "Disables allocation cap on every level. It's up to the user to keep track of them."
+            },
+            "mark-background-class": {
+                "name": "Mark Background and Class",
+                "hint": "In addition to marking skills improved in source, will also mark those that are improved by character's background and class. Defaults to false, as it currently ignores rule elements and only uses data from the details tab, and may seem inconsistent."
             }
         }
     }

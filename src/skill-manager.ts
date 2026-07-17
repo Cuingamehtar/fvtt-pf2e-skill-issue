@@ -12,7 +12,7 @@ import {
     SkillManagerData,
 } from "./data";
 import { getSetting } from "./settings";
-import { rangeInclusive } from "./utils";
+import { isSkill, rangeInclusive } from "./utils";
 
 export class SkillManager {
     actor: CharacterPF2e;
@@ -94,65 +94,69 @@ export class SkillManager {
             }));
     }
 
-    getRank(
+    getCumulativeRanks(
         slug: SkillSlug | LoreSlug,
-        level: 0 | OneToTwenty | "source" | "override" | "final",
-    ): ZeroToFour {
-        if (slug in CONFIG.PF2E.skills) {
-            if (level === "source" || level === 0)
-                return (
-                    this.actor._source.system.skills[slug as SkillSlug]?.rank ??
-                    0
-                );
-            if (level === "override") {
-                return (
-                    this.getData().overrides?.[slug] ??
-                    this.getRank(slug, this.actor.level as OneToTwenty)
-                );
-            }
-            if (level === "final") {
-                return this.actor.system.skills[slug]?.rank;
-            }
-            return (
-                this.getData()
-                    .increases?.filter(
-                        (inc) =>
-                            inc.slug === slug && inc.level <= (level as number),
-                    )
-                    .map((inc) => inc.rank)
-                    .reduce(
-                        (acc, e) => Math.max(acc, e) as ZeroToFour,
-                        this.getRank(slug, "source"),
-                    ) ?? 0
+    ): Record<
+        | 0
+        | OneToTwenty
+        | "source"
+        | "class"
+        | "background"
+        | "override"
+        | "final",
+        ZeroToFour
+    > {
+        const isLore = !isSkill(slug);
+        let source, characterClass, background, final;
+        if (isLore) {
+            const lore = this.actor.itemTypes.lore.find(
+                (lore) => lore.slug === slug,
             );
-        }
-        const lore = this.actor.itemTypes.lore.find(
-            (lore) => lore.slug === slug,
-        );
-        if (!lore) return 0;
-        if (level === "source" || level === 0)
-            return lore._source.system.proficient.value;
-        if (level === "override") {
-            return (
-                this.getData().overrides?.[slug] ??
-                this.getRank(slug, this.actor.level as OneToTwenty)
+            source = lore?._source.system.proficient.value ?? 0;
+            characterClass = 0;
+            background = 0;
+            final = lore?.system.proficient.value ?? 0;
+        } else {
+            source = this.actor._source.system.skills[slug]?.rank ?? 0;
+            characterClass = Number(
+                this.actor.class?.system.trainedSkills.value.includes(slug),
             );
+            background = Number(
+                this.actor.background?.system.trainedSkills.value.includes(
+                    slug,
+                ),
+            );
+            final = this.actor.system.skills[slug]?.rank ?? 0;
         }
-        if (level === "final") {
-            return lore.system.proficient.value;
-        }
-        return (
-            this.getData()
-                .increases?.filter(
-                    (inc) =>
-                        inc.slug === slug && inc.level <= (level as number),
-                )
-                .map((inc) => inc.rank)
-                .reduce(
-                    (acc, e) => Math.max(acc, e) as ZeroToFour,
-                    this.getRank(slug, "source"),
-                ) ?? 0
+        const atZero = Math.max(
+            source,
+            getSetting("mark-background-class") ? background : 0,
+            getSetting("mark-background-class") ? characterClass : 0,
+        ) as ZeroToFour;
+        const increases = this.getData().increases ?? [];
+        const levels = rangeInclusive(1, 20).reduce(
+            (arr, level) => {
+                const inc = increases
+                    .filter((inc) => inc.slug === slug && inc.level === level)
+                    .reduce((rank, e) => Math.max(rank, e.rank), 0);
+                const prevRank = arr[arr.length - 1][1];
+                const rank = Math.max(prevRank, inc) as ZeroToFour;
+                arr.push([level, rank] as [OneToTwenty, ZeroToFour]);
+                return arr;
+            },
+            [[0, atZero]] as [0 | OneToTwenty, ZeroToFour][],
         );
+        const override =
+            this.getData().overrides?.[slug] ?? levels[levels.length - 1][1];
+
+        return {
+            ...fromEntries(levels),
+            source,
+            class: characterClass as ZeroToFour,
+            background: background as ZeroToFour,
+            override,
+            final,
+        };
     }
 
     getSkills() {

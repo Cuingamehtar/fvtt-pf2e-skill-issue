@@ -158,38 +158,44 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
         const scrollable = this.element.querySelector(".scrollable");
         if (scrollable) scrollable.scrollTop = this.scrollPosition ?? 0;
 
-        const { skills, increases, levels, ranks } = context;
+        const { skills, increases, levels } = context;
 
         skills.forEach((skill) => {
             const rowFirstCell = this.element.querySelector(
                 `td#skill-${skill.slug}`,
             );
-            const baseRank = this.skillManager.getRank(skill.slug, 0);
-            stripGradientClasses(rowFirstCell);
-            rowFirstCell?.classList.add(`si-enter-${baseRank}`, `si-leave-0`);
-
-            const rowOverride = this.element.querySelector(
-                `td#skill-${skill.slug}-override`,
-            );
-            if (rowOverride) {
-                stripGradientClasses(rowOverride);
+            const skillRanks = this.skillManager.getCumulativeRanks(skill.slug);
+            if (rowFirstCell) {
+                const icons = [
+                    this.#faIcon("source", skillRanks.source),
+                    ...(getSetting("mark-background-class")
+                        ? [
+                              this.#faIcon("background", skillRanks.background),
+                              this.#faIcon("class", skillRanks.class),
+                          ]
+                        : []),
+                ].filter(truthy);
+                rowFirstCell.innerHTML =
+                    _loc(skill.label) +
+                    (icons.length > 0
+                        ? '&ensp;<span style="float:right">' +
+                          icons
+                              .map((i) => i.outerHTML)
+                              .reduce((acc, b) => acc + b, "")
+                        : "</span>");
             }
 
             const rowLastCell = this.element.querySelector(
                 `td#skill-${skill.slug}-final`,
             );
             if (rowLastCell) {
-                const rankFinal = this.skillManager.getRank(
-                    skill.slug,
-                    "final",
-                );
+                const rankFinal = skillRanks.final;
                 stripGradientClasses(rowLastCell);
 
-                rowLastCell.classList.add(
-                    `si-enter-0`,
-                    `si-leave-${rankFinal}`,
+                rowLastCell.classList.add(`si-leave-${rankFinal}`);
+                rowLastCell.innerHTML = _loc(
+                    `PF2E.ProficiencyLevel${rankFinal}`,
                 );
-                rowLastCell.innerHTML = _loc(ranks[rankFinal].labelFull);
             }
 
             skill.cells.forEach((cell, i) => {
@@ -197,10 +203,8 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
                 if (!cellHTML) return;
 
                 const level = levels[i];
-                const rankEnter = this.skillManager.getRank(
-                    skill.slug,
-                    (level.value - 1) as 0 | OneToTwenty,
-                );
+                const rankEnter =
+                    skillRanks[(level.value - 1) as 0 | OneToTwenty];
                 const thisChanged = cell.selected;
                 const rankNext = rankEnter + 1;
                 const rankMax = maxRank(level.value);
@@ -213,9 +217,20 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
                         (selectedOnLevel >= level.allowance &&
                             !getSetting("unlimited")));
                 if (locked) {
-                    cellHTML
-                        .querySelector("p")
-                        ?.classList.remove("si-disabled");
+                    const lock = cellHTML.querySelector("p");
+                    if (lock) {
+                        if (rankNext > rankMax) {
+                            lock.dataset.tooltip = _loc(
+                                "pf2e-skill-issue.tooltip.locked-because.no-valid-upgrade-rank",
+                            );
+                        } else {
+                            lock.dataset.tooltip = _loc(
+                                "pf2e-skill-issue.tooltip.locked-because.exhausted-allowance",
+                            );
+                        }
+                        lock.classList.remove("si-disabled");
+                    }
+
                     cellHTML
                         .querySelector("select")
                         ?.classList.add("si-disabled");
@@ -299,6 +314,29 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
         await this.actor.setFlag("pf2e-skill-issue", "skill-data", flag);
     }
 
+    #faIcon(source: "source" | "class" | "background", rank: ZeroToFour) {
+        if (rank === 0) return null;
+        const icon = document.createElement("i");
+        switch (source) {
+            case "source":
+                icon.classList.add("fa-solid", "fa-file-pen");
+                break;
+            case "class":
+                icon.classList.add("fa-solid", "fa-shield");
+                break;
+            case "background":
+                icon.classList.add("fa-solid", "fa-book");
+                break;
+        }
+        icon.dataset.tooltip = _loc(
+            `pf2e-skill-issue.tooltip.granted-by.${source}`,
+            {
+                proficiency: `<p style="text-align:center;">${_loc(`PF2E.ProficiencyLevel${rank}`)}</p>`,
+            },
+        );
+        return icon;
+    }
+
     override async close(options?: fa.ApplicationClosingOptions) {
         await super.close(options);
         Hooks.off("updateActor", this.actorUpdateEventHook);
@@ -326,11 +364,6 @@ interface SkillManagerAppContext extends fa.ApplicationRenderContext {
 
 const stripGradientClasses = (e: Element | null) =>
     e?.classList.remove(
-        "si-enter-0",
-        "si-enter-1",
-        "si-enter-2",
-        "si-enter-3",
-        "si-enter-4",
         "si-leave-0",
         "si-leave-1",
         "si-leave-2",

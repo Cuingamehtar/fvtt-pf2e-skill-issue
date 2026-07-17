@@ -1,26 +1,10 @@
 .si-bg {
     background: linear-gradient(
         to right,
-        var(--si-color-enter),
-        transparent 20%,
+        transparent,
         transparent 80%,
         var(--si-color-leave)
     );
-}
-.si-enter-0 {
-    --si-color-enter: transparent;
-}
-.si-enter-1 {
-    --si-color-enter: var(--color-proficiency-trained);
-}
-.si-enter-2 {
-    --si-color-enter: var(--color-proficiency-expert);
-}
-.si-enter-3 {
-    --si-color-enter: var(--color-proficiency-master);
-}
-.si-enter-4 {
-    --si-color-enter: var(--color-proficiency-legendary);
 }
 .si-leave-0 {
     --si-color-leave: transparent;
