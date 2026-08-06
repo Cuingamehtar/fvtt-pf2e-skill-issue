@@ -9,4 +9,5 @@ Supports both core skills and lores, which are tracked by their name.
 <img width="511" height="221" alt="si-1" src="https://github.com/user-attachments/assets/82d75d94-d811-4c48-990c-d707a8bc1afb" />
 
 2. Configure the skill upgrades the character gets. User "override" column to do manual adjustment if necessary, and keep notes in a text field at the bottom of the window.
-<img width="1114" height="897" alt="si-2" src="https://github.com/user-attachments/assets/a1f2ca3a-6400-41ca-b2f0-3c5a30b353b3" />
+<img width="1751" height="1276" alt="si-2" src="https://github.com/user-attachments/assets/b4cb0549-3be3-49d5-a031-f6a3fbd5e0a9" />
+
