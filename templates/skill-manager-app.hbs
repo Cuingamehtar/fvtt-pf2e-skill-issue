@@ -4,39 +4,37 @@
             <tr>
                 <th>{{localize "pf2e-skill-issue.skill"}}</th>
                 {{#each levels as |level|}}
-                    <th style="text-align:center;">
+                    <th class="si-col-{{level.value}}" style="text-align:center;">
                         <p>{{level.label}}</p>
-                        <p>({{level.allowance}})</p>
+                        <p class="si-allowance-{{level.value}}"></p>
                     </th>
                 {{/each}}
-                <th>{{localize "pf2e-skill-issue.override"}}</th>
+                <th class="si-col-override">{{localize "pf2e-skill-issue.override"}}</th>
                 <th>{{localize "pf2e-skill-issue.final-proficiency"}}</th>
             </tr>
         </thead>
         <tbody>
             {{#each skills as |skill|}}
-                <tr class="si-tr">
+                <tr class="si-tr si-row-{{skill.slug}}">
                     <td class="si-td" id="skill-{{slug}}">{{skill.label}}</td>
-                    {{#each cells as |cell|}}
-                        <td id="{{id}}" class="si-td" style="text-align:center;">
+                    {{#each ../levels as |level|}}
+                        <td class="si-td si-row-{{skill.slug}} si-col-{{level.value}}" style="text-align:center;">
                             <p class="si-disabled si-lock"><i class="fa-solid fa-lock"></i></p>
-                            <select class="si-select" name="{{id}}">
-                                <option value="-" {{#if (not ../selected)}} selected{{/if}}>&mdash;
-                                </option>
+                            <select class="si-select" name="cell-{{level.value}}-{{skill.slug}}">
+                                <option value="-">&mdash;</option>
                                 {{#each @root/ranks as |rank|}}
-                                    <option value="{{@index}}" {{#if (eq cell/selected @index)}} selected{{/if}}>
+                                    <option value="{{@index}}">
                                         {{localize rank.labelShort}}
                                     </option>
                                 {{/each}}
                             </select>
                         </td>
                     {{/each}}
-                    <td class="si-td" id="skill-{{slug}}-override" style="text-align:center;">
+                    <td class="si-td si-col-override" id="skill-{{slug}}-override" style="text-align:center;">
                         <select class="si-select" name="cell-override-{{slug}}">
-                            <option value="-" {{#if (not skill.override)}} selected{{/if}}>&mdash;
-                            </option>
+                            <option value="-">&mdash;</option>
                             {{#each @root/ranks as |rank|}}
-                                <option value="{{@index}}" {{#if (eq skill.override @index)}} selected{{/if}}>
+                                <option value="{{@index}}">
                                     {{localize rank.labelShort}}
                                 </option>
                             {{/each}}

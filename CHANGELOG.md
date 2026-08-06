@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0] - 2026-08-16
+
+### Removed
+
+- All settings. The configuration is now done per-character.
+
+### Added
+
+- A counter that tracks the selected allocations per level
+- Skill Manager configuration menu
+- Ability to override the allowed selections per level. Overriden caps are marked with an exclamation mark
+- Option to limit the level for planning ahead
+- Overcapped allocations are now marked with and exclamation mark in the table header
+
+### Changed
+
+- Negative intelligence modifier is properly accounted for.
+- Lores are now tracked by id and not by slug, which allows renaming the Lore without losing its improvements.
+
 ## [0.8] - 2026-07-18
 
 ### Added

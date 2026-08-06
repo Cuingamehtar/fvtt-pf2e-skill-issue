@@ -1,0 +1,29 @@
+<div style="width:400px;">
+    <div class="form-group">
+        <label for="plan-ahead-cap">{{localize "pf2e-skill-issue.config.plan-ahead-level-cap"}}</label>
+        <div class="form-fields">
+            <range-picker value="{{planAheadCap}}" min="0" max="20" step="1" name="plan-ahead-cap"></range-picker>
+        </div>
+        <p class="hint">{{localize "pf2e-skill-issue.config.plan-ahead-level-cap-hint"}}</p>
+    </div>
+    <p></p>
+    <div class="form-group">
+        <label for="mark-background-class">{{localize "pf2e-skill-issue.config.mark-background-class"}}</label>
+        <div class="form-fields">
+            <input type="checkbox" name="mark-background-class" {{checked this.markBackgroundClass}} />
+        </div>
+        <p class="hint">{{localize "pf2e-skill-issue.config.mark-background-class-hint"}}</p>
+    </div>
+    <p></p>
+    <fieldset style="display:flex;flex-wrap: wrap;flex-direction:row; justify-items: space-between;">
+        <legend>{{localize "pf2e-skill-issue.config.choice-cap-override"}}</legend>
+        {{#each overrides}}
+            <div class="form-group" style="max-width:20%">
+                <label for="override-level-{{this.level}}" style="text-align:right;">{{this.label}}</label>
+                <input type="number" name="override-level-{{this.level}}" id="override-level-{{this.level}}"
+                    value="{{this.override}}" placeholder="{{this.allowance}}" step="1" min="0" style="flex:0.7" />
+            </div>
+        {{/each}}
+    </fieldset>
+    <p class="hint">{{localize "pf2e-skill-issue.config.choice-cap-override-hint"}}</p>
+</div>

@@ -40,23 +40,15 @@
                 "exhausted-allowance": "You have reached the maximum number of improvements you can choose at this level."
             }
         },
-        "settings": {
-            "roguelike": {
-                "name": "Roguelike Mode",
-                "hint": "Treat every class as if they were a rogue - grants a skill increase at every level."
-            },
-            "plan-ahead": {
-                "name": "Plot the Future",
-                "hint": "Allows preplanning all allocations up to level 20 in advance. They won't take effect until you reach the required level."
-            },
-            "unlimited": {
-                "name": "Unlimited Choice",
-                "hint": "Disables allocation cap on every level. It's up to the user to keep track of them."
-            },
-            "mark-background-class": {
-                "name": "Mark Background and Class",
-                "hint": "In addition to marking skills improved in source, will also mark those that are improved by character's background and class. Defaults to false, as it currently ignores rule elements and only uses data from the details tab, and may seem inconsistent."
-            }
+        "config": {
+            "button": "Configuration",
+            "choice-cap-override": "Choice cap override",
+            "choice-cap-override-hint": "Changes the number of skills you can improve at a given level. Overriden values will be marked with an exclamation mark in the header row. Clear a field to disable the override.",
+            "mark-background-class": "Mark improvements by Background and Class",
+            "mark-background-class-hint": "In addition to marking skills improved in source, will also mark those that are improved by character's background and class. Defaults to false, as it currently ignores rule elements and only uses data from the details tab, and may seem inconsistent.",
+            "plan-ahead-level-cap": "Plan allocations up to level",
+            "plan-ahead-level-cap-hint": "Allows preplanning all allocations in advance up to the chosen level. They won't take effect until you reach the required level.",
+            "title": "Skill Manager Configuration"
         }
     }
 }

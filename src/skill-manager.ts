@@ -1,18 +1,12 @@
 import {
     CharacterPF2e,
+    LorePF2e,
     SkillSlug,
     ZeroToFour,
 } from "@7h3laughingman/pf2e-types";
 import { MODULE_ID } from "./module";
-import {
-    LoreSlug,
-    migrateData,
-    newData,
-    OneToTwenty,
-    SkillManagerData,
-} from "./data";
-import { getSetting } from "./settings";
-import { isSkill, rangeInclusive } from "./utils";
+import { migrateData, newData, OneToTwenty, SkillManagerData } from "./data";
+import { isSkill, mapSome, rangeInclusive } from "./utils";
 
 export class SkillManager {
     actor: CharacterPF2e;
@@ -24,7 +18,28 @@ export class SkillManager {
     getData() {
         const data = this.actor.getFlag(MODULE_ID, "skill-data") as
             SkillManagerData | undefined;
-        return data ? migrateData(data) : newData;
+        if (!data) return newData;
+        return migrateData(data, { manager: this });
+    }
+    async setData(
+        newData:
+            | DeepPartial<SkillManagerData>
+            | {
+                  overrides?: ReturnType<typeof _replace>;
+              }
+            | {
+                  settings?: ReturnType<typeof _replace>;
+              },
+    ) {
+        const obj = foundry.utils.mergeObject(this.getData(), newData, {
+            inplace: true,
+        });
+
+        await this.actor.setFlag(
+            "pf2e-skill-issue",
+            "skill-data",
+            _replace(obj),
+        );
     }
 
     prepareData() {
@@ -60,42 +75,45 @@ export class SkillManager {
         this.actor.itemTypes.lore.forEach((lore) => {
             lore.system.proficient.value = updateValue(
                 lore.system.proficient.value,
-                ranks[lore.slug as LoreSlug],
-                data.overrides?.[lore.slug as LoreSlug],
+                ranks[lore.id],
+                data.overrides?.[lore.id],
             );
         });
     }
 
-    levelsWithSkillUpgrades() {
-        if (getSetting("roguelike")) {
-            return rangeInclusive(1, 20) as OneToTwenty[];
-        } else {
-            return [
-                1,
-                ...(this.actor.class?.system.skillIncreaseLevels.value ?? []),
-            ] as OneToTwenty[];
-        }
+    get #classSkillLevels() {
+        return (this.actor.class?.system.skillIncreaseLevels.value ??
+            []) as OneToTwenty[];
     }
 
-    levelOneUpgrades() {
+    get #classTrainedSkills() {
+        return this.actor.class?.system.trainedSkills.additional ?? 0;
+    }
+    get #intelligenceSkills() {
+        return this.actor.abilities.int.base;
+    }
+
+    getBaseUpgradesForLevel(level: OneToTwenty) {
+        return level === 1
+            ? this.#classTrainedSkills + this.#intelligenceSkills
+            : Number(this.#classSkillLevels.includes(level));
+    }
+
+    getUpgradesForLevel(level: OneToTwenty) {
+        const data = this.getData();
         return (
-            (this.actor.class?.system.trainedSkills.additional ?? 0) +
-            Math.max(this.actor.abilities.int.base, 0)
+            mapSome(data?.capOverrides?.[level], (cap) => ({
+                value: cap,
+                override: true,
+            })) ?? {
+                value: this.getBaseUpgradesForLevel(level),
+                override: false,
+            }
         );
     }
 
-    getLevels() {
-        return this.levelsWithSkillUpgrades()
-            .filter((l) => getSetting("plan-ahead") || this.actor.level >= l)
-            .map((level) => ({
-                value: level,
-                label: _loc("pf2e-skill-issue.levels." + level),
-                allowance: level == 1 ? this.levelOneUpgrades() : 1,
-            }));
-    }
-
     getCumulativeRanks(
-        slug: SkillSlug | LoreSlug,
+        slug: SkillSlug | LorePF2e["id"],
     ): Record<
         | 0
         | OneToTwenty
@@ -106,11 +124,12 @@ export class SkillManager {
         | "final",
         ZeroToFour
     > {
+        const data = this.getData();
         const isLore = !isSkill(slug);
         let source, characterClass, background, final;
         if (isLore) {
             const lore = this.actor.itemTypes.lore.find(
-                (lore) => lore.slug === slug,
+                (lore) => lore.id === slug,
             );
             source = lore?._source.system.proficient.value ?? 0;
             characterClass = 0;
@@ -130,8 +149,8 @@ export class SkillManager {
         }
         const atZero = Math.max(
             source,
-            getSetting("mark-background-class") ? background : 0,
-            getSetting("mark-background-class") ? characterClass : 0,
+            data.settings?.["mark-background-class"] ? background : 0,
+            data.settings?.["mark-background-class"] ? characterClass : 0,
         ) as ZeroToFour;
         const increases = this.getData().increases ?? [];
         const levels = rangeInclusive(1, 20).reduce(
@@ -167,7 +186,7 @@ export class SkillManager {
     }
     getLores() {
         return this.actor.itemTypes.lore.map((lore) => ({
-            slug: lore.slug as LoreSlug,
+            slug: lore.id as LorePF2e["id"],
             label: lore.name,
         }));
     }

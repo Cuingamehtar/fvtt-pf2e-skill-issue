@@ -12,17 +12,63 @@ import {
     objectEntries,
     SkillManager,
 } from "../skill-manager";
-import { LoreSlug, OneToTwenty, SkillManagerData } from "../data";
-import { localeCompare, rangeInclusive, truthy } from "../utils";
-import { getSetting } from "../settings";
+import { currentDataVersion, LoreId, OneToTwenty } from "../data";
+import { localeCompare, rangeInclusive, notNull, getApp } from "../utils";
+import { openSkillManagerConfig } from "./skill-manager-config-app";
 
 type UnknownHookHandler = (p: unknown) => void;
+
+const rankLabels = [
+    {
+        labelFull: "PF2E.ProficiencyLevel0",
+        labelShort: "PF2E.SETTINGS.Variant.Proficiency.Rank.Untrained",
+    },
+    {
+        labelFull: "PF2E.ProficiencyLevel1",
+        labelShort: "PF2E.SETTINGS.Variant.Proficiency.Rank.Trained",
+    },
+    {
+        labelFull: "PF2E.ProficiencyLevel2",
+        labelShort: "PF2E.SETTINGS.Variant.Proficiency.Rank.Expert",
+    },
+    {
+        labelFull: "PF2E.ProficiencyLevel3",
+        labelShort: "PF2E.SETTINGS.Variant.Proficiency.Rank.Master",
+    },
+    {
+        labelFull: "PF2E.ProficiencyLevel4",
+        labelShort: "PF2E.SETTINGS.Variant.Proficiency.Rank.Legendary",
+    },
+];
 
 interface SkillManagerAppOptions extends DeepPartial<foundry.applications.ApplicationConfiguration> {
     actor: CharacterPF2e;
 }
 
-export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicationMixin(
+export function openSkillManager(actor: CharacterPF2e) {
+    const id = `skill-manager-app-${actor.uuid}`;
+    const currentWindow = getApp(id);
+
+    return currentWindow ?? new SkillManagerApp({ id, actor });
+}
+
+Hooks.on("updateActor", ((actor: ActorPF2e) => {
+    const id = `skill-manager-app-${actor.uuid}`;
+    const app = getApp(id) as SkillManagerApp | undefined;
+    app?.render({ isFirstRender: false });
+}) as UnknownHookHandler);
+for (const hook of ["createItem", "deleteItem", "updateItem"]) {
+    Hooks.on(hook, ((item: ItemPF2e) => {
+        if (!item.isOfType("background", "class", "lore")) return;
+        const actor = item.parent;
+        if (!actor) return;
+        const id = `skill-manager-app-${actor.uuid}`;
+        const app = getApp(id) as SkillManagerApp | undefined;
+        app?.render({ isFirstRender: false });
+    }) as UnknownHookHandler);
+}
+
+class SkillManagerApp extends foundry.applications.api.HandlebarsApplicationMixin(
     foundry.applications.api.ApplicationV2,
 ) {
     static override DEFAULT_OPTIONS: DeepPartial<foundry.applications.ApplicationConfiguration> =
@@ -36,6 +82,17 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
             window: {
                 contentClasses: ["standard-form"],
                 title: "pf2e-skill-issue.skill-manager-title",
+                controls: [
+                    {
+                        icon: "fa-solid fa-gear",
+                        label: "pf2e-skill-issue.config.button",
+                        action: "openConfig",
+                        visible: true,
+                    },
+                ],
+            },
+            actions: {
+                openConfig: SkillManagerApp.onOpenConfig,
             },
         };
 
@@ -44,73 +101,36 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
             template:
                 "modules/pf2e-skill-issue/templates/skill-manager-app.hbs",
         },
-        footer: {
-            template: "templates/generic/form-footer.hbs",
-        },
     };
 
     actor: CharacterPF2e;
     skillManager: SkillManager;
-    actorUpdateEventHook: number;
-    loreUpdateEventHook: number;
     scrollPosition?: number;
 
     constructor(options: SkillManagerAppOptions) {
-        options.uniqueId = `skill-manager-app-${options.actor.uuid}`;
         super(options);
         this.actor = options.actor;
         this.skillManager = new SkillManager(this.actor);
-        this.actorUpdateEventHook = Hooks.on("updateActor", ((
-            actor: ActorPF2e,
-        ) => {
-            if ((actor as ActorPF2e).id !== this.actor.id) {
-                return;
-            }
-            this.scrollPosition =
-                this.element.querySelector(".scrollable")?.scrollTop;
-            this.render({ isFirstRender: false });
-        }) as UnknownHookHandler);
-        this.loreUpdateEventHook = Hooks.on("updateItem", ((item: ItemPF2e) => {
-            if (!item.isOfType("lore") || item.parent?.id !== this.actor.id) {
-                return;
-            }
-            this.scrollPosition =
-                this.element.querySelector(".scrollable")?.scrollTop;
-            this.render({ isFirstRender: false });
-        }) as UnknownHookHandler);
+    }
+
+    _getFrameButtons(options: fa.ApplicationRenderOptions) {
+        return [
+            // @ts-expect-error
+            ...super._getFrameButtons(options),
+            {
+                icon: "fa-solid fa-gear",
+                label: "pf2e-skill-issue.config.button",
+                action: "openConfig",
+                visible: true,
+            },
+        ];
     }
 
     protected async _prepareContext(
         options: fa.ApplicationRenderOptions,
     ): Promise<SkillManagerAppContext> {
         const context = await super._prepareContext(options);
-
-        const levels = this.skillManager.getLevels();
         const flag = this.skillManager.getData();
-        const increases = flag.increases ?? [];
-
-        const ranks = [
-            {
-                labelFull: "PF2E.ProficiencyLevel0",
-                labelShort: "PF2E.SETTINGS.Variant.Proficiency.Rank.Untrained",
-            },
-            {
-                labelFull: "PF2E.ProficiencyLevel1",
-                labelShort: "PF2E.SETTINGS.Variant.Proficiency.Rank.Trained",
-            },
-            {
-                labelFull: "PF2E.ProficiencyLevel2",
-                labelShort: "PF2E.SETTINGS.Variant.Proficiency.Rank.Expert",
-            },
-            {
-                labelFull: "PF2E.ProficiencyLevel3",
-                labelShort: "PF2E.SETTINGS.Variant.Proficiency.Rank.Master",
-            },
-            {
-                labelFull: "PF2E.ProficiencyLevel4",
-                labelShort: "PF2E.SETTINGS.Variant.Proficiency.Rank.Legendary",
-            },
-        ];
 
         const skills = [
             this.skillManager
@@ -119,31 +139,16 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
             this.skillManager
                 .getLores()
                 .sort((a, b) => localeCompare(a.label, b.label)),
-        ]
-            .flat()
-            .map((skill) => ({
-                ...skill,
-                cells: levels.map((level) => {
-                    const thisChanged = increases.find(
-                        (inc) =>
-                            inc.slug === skill.slug &&
-                            inc.level === level.value &&
-                            inc.rank <= maxRank(level.value),
-                    );
-                    return {
-                        selected: thisChanged?.rank,
-                        id: `cell-${level.value}-${skill.slug}`,
-                    };
-                }),
-                override: flag.overrides?.[skill.slug],
-            }));
+        ].flat();
 
         return {
             ...context,
             ...{
-                increases,
-                ranks,
-                levels,
+                levels: rangeInclusive(1, 20).map((level) => ({
+                    value: level,
+                    label: _loc(`pf2e-skill-issue.levels.${level}`),
+                })),
+                ranks: rankLabels,
                 skills,
                 note: flag.note ?? "",
             },
@@ -155,37 +160,94 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
         options: fa.ApplicationRenderOptions,
     ) {
         super._onRender(context, options);
+
+        const data = this.skillManager.getData();
+        const filteredIncreases =
+            data.increases?.filter((inc) =>
+                context.skills.some((s) => s.slug == inc.slug),
+            ) ?? [];
+
         const scrollable = this.element.querySelector(".scrollable");
         if (scrollable) scrollable.scrollTop = this.scrollPosition ?? 0;
 
-        const { skills, increases, levels } = context;
+        const { skills } = context;
+
+        function keepColumn(
+            level: OneToTwenty,
+            increases: number,
+            allowance: number,
+            actorLevel: OneToTwenty,
+            planAheadLevel?: OneToTwenty,
+        ) {
+            if (increases > 0) return true;
+            if (allowance == 0) return false;
+            if (level <= actorLevel) return true;
+            if (planAheadLevel && level <= planAheadLevel) return true;
+            return false;
+        }
+
+        const allowances = rangeInclusive(1, 20).map((level) => {
+            const allowance = this.skillManager.getUpgradesForLevel(level);
+            const increases =
+                filteredIncreases.filter((inc) => inc.level === level).length ??
+                0;
+            const isHidden = !keepColumn(
+                level,
+                increases,
+                allowance.value,
+                this.actor.level as OneToTwenty,
+                data.settings?.["plan-ahead-cap"],
+            );
+            this.element
+                .querySelectorAll(`.si-col-${level}`)
+                .forEach((e) => setVisibility(e, !isHidden));
+            const label = this.element.querySelector(`.si-allowance-${level}`);
+            if (label)
+                label.textContent = `(${increases}${increases > allowance.value ? "!" : ""}/${allowance.value}${allowance.override ? "!" : ""})`;
+            return {
+                max: allowance.value,
+                current: increases,
+                capped: increases >= allowance.value,
+            };
+        });
 
         skills.forEach((skill) => {
-            const rowFirstCell = this.element.querySelector(
-                `td#skill-${skill.slug}`,
-            );
+            const row = this.element.querySelector(`tr.si-row-${skill.slug}`);
+            if (!row) return;
+            const rowFirstCell = row.querySelector(`td#skill-${skill.slug}`);
             const skillRanks = this.skillManager.getCumulativeRanks(skill.slug);
             if (rowFirstCell) {
                 const icons = [
                     this.#faIcon("source", skillRanks.source),
-                    ...(getSetting("mark-background-class")
+                    ...(data.settings?.["mark-background-class"]
                         ? [
                               this.#faIcon("background", skillRanks.background),
                               this.#faIcon("class", skillRanks.class),
                           ]
                         : []),
-                ].filter(truthy);
+                ].filter(notNull);
                 rowFirstCell.innerHTML =
                     _loc(skill.label) +
                     (icons.length > 0
                         ? '&ensp;<span style="float:right">' +
                           icons
                               .map((i) => i.outerHTML)
-                              .reduce((acc, b) => acc + b, "")
-                        : "</span>");
+                              .reduce((acc, b) => acc + b, "") +
+                          "</span>"
+                        : "");
             }
 
-            const rowLastCell = this.element.querySelector(
+            const rowOverrideCell = row.querySelector(`td.si-col-override`);
+            if (rowOverrideCell) {
+                const select = rowOverrideCell.querySelector("select");
+                const override = data.overrides?.[skill.slug];
+                if (select) {
+                    select.value =
+                        typeof override === "number" ? String(override) : "-";
+                }
+            }
+
+            const rowLastCell = row.querySelector(
                 `td#skill-${skill.slug}-final`,
             );
             if (rowLastCell) {
@@ -198,26 +260,28 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
                 );
             }
 
-            skill.cells.forEach((cell, i) => {
-                const cellHTML = this.element.querySelector(`td#${cell.id}`);
-                if (!cellHTML) return;
+            rangeInclusive(1, 20).forEach((level, i) => {
+                const cellHTML = row.querySelector(
+                    `td.si-row-${skill.slug}.si-col-${level}`,
+                );
+                if (!cellHTML || cellHTML.classList.contains("si-disabled"))
+                    return;
 
-                const level = levels[i];
-                const rankEnter =
-                    skillRanks[(level.value - 1) as 0 | OneToTwenty];
-                const thisChanged = cell.selected;
+                const rankEnter = skillRanks[i as 0 | OneToTwenty];
+                const thisChanged = filteredIncreases.find(
+                    (inc) => inc.level === level && inc.slug === skill.slug,
+                );
+                const select = cellHTML.querySelector("select");
+                const lock = cellHTML.querySelector("p");
+                if (thisChanged && select) {
+                    select.value = String(thisChanged.rank);
+                }
                 const rankNext = rankEnter + 1;
-                const rankMax = maxRank(level.value);
-                const selectedOnLevel =
-                    increases.filter((inc) => inc.level === level.value)
-                        .length ?? 0;
+                const rankMax = maxRank(level);
                 const locked =
                     !thisChanged &&
-                    (rankNext > rankMax ||
-                        (selectedOnLevel >= level.allowance &&
-                            !getSetting("unlimited")));
+                    (rankNext > rankMax || allowances[i].capped);
                 if (locked) {
-                    const lock = cellHTML.querySelector("p");
                     if (lock) {
                         if (rankNext > rankMax) {
                             lock.dataset.tooltip = _loc(
@@ -228,30 +292,21 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
                                 "pf2e-skill-issue.tooltip.locked-because.exhausted-allowance",
                             );
                         }
-                        lock.classList.remove("si-disabled");
+                        setVisibility(lock, true);
                     }
 
-                    cellHTML
-                        .querySelector("select")
-                        ?.classList.add("si-disabled");
+                    setVisibility(select, false);
                     return;
                 }
 
-                cellHTML.querySelector("p")?.classList.add("si-disabled");
-                cellHTML
-                    .querySelector("select")
-                    ?.classList.remove("si-disabled");
+                setVisibility(lock, false);
+                setVisibility(select, true);
 
                 rangeInclusive(0, 4).forEach((rank) => {
                     const option = cellHTML.querySelector(
                         `option[value="${rank}"]`,
                     );
-                    if (!option) return;
-                    if (rank < rankNext || rank > rankMax) {
-                        option.classList.add("si-disabled");
-                    } else {
-                        option.classList.remove("si-disabled");
-                    }
+                    setVisibility(option, rank >= rankNext && rank <= rankMax);
                 });
             });
         });
@@ -278,12 +333,12 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
                 )
                     return;
                 return {
-                    slug: m[2] as SkillSlug | LoreSlug,
+                    slug: m[2] as SkillSlug | LoreId,
                     level: level as OneToTwenty,
                     rank: value as OneToFour,
                 };
             })
-            .filter(truthy);
+            .filter(notNull);
 
         const overrides = fromEntries(
             objectEntries(formData.object)
@@ -296,22 +351,35 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
                     if (!m) return;
                     const value = Number(v);
                     if (isNaN(value) || value < 0 || value > 4) return;
-                    return [m[1] as SkillSlug | LoreSlug, value] as [
-                        SkillSlug | LoreSlug,
-                        ZeroToFour,
-                    ];
+                    return [m[1], value] as [SkillSlug | LoreId, ZeroToFour];
                 })
-                .filter(truthy),
+                .filter(notNull),
         );
 
         const flag = {
-            increases: _replace(increases),
+            increases: increases,
             overrides: _replace(overrides),
-            version: 1,
+            version: currentDataVersion,
             note: formData.object.note as string,
         };
 
-        await this.actor.setFlag("pf2e-skill-issue", "skill-data", flag);
+        await this.skillManager.setData(flag);
+    }
+
+    override async render(options?: DeepPartial<fa.ApplicationRenderOptions>) {
+        this.scrollPosition =
+            this.element?.querySelector(".scrollable")?.scrollTop;
+        return super.render(options);
+    }
+
+    static onOpenConfig(
+        this: SkillManagerApp,
+        event: Event,
+        _target: HTMLElement,
+    ) {
+        event.preventDefault();
+        const configWindow = openSkillManagerConfig(this.actor);
+        configWindow.render(true);
     }
 
     #faIcon(source: "source" | "class" | "background", rank: ZeroToFour) {
@@ -336,30 +404,16 @@ export class SkillManagerApp extends foundry.applications.api.HandlebarsApplicat
         );
         return icon;
     }
-
-    override async close(options?: fa.ApplicationClosingOptions) {
-        await super.close(options);
-        Hooks.off("updateActor", this.actorUpdateEventHook);
-        Hooks.off("updateItem", this.loreUpdateEventHook);
-        return this;
-    }
 }
 
 interface SkillManagerAppContext extends fa.ApplicationRenderContext {
-    increases: NonNullable<SkillManagerData["increases"]>;
-    levels: { value: OneToTwenty; label: string; allowance: number }[];
-    ranks: { labelShort: string; labelFull: string }[];
-    skills: {
-        slug: SkillSlug | LoreSlug;
-        label: string;
-        cells: {
-            id: string;
-            options?: { value: OneToFour; label: string }[];
-            selected?: OneToFour;
-        }[];
-        override?: ZeroToFour;
-    }[];
     note: string;
+    ranks: { labelShort: string; labelFull: string }[];
+    levels: { value: OneToTwenty; label: string }[];
+    skills: {
+        slug: SkillSlug | LoreId;
+        label: string;
+    }[];
 }
 
 const stripGradientClasses = (e: Element | null) =>
@@ -370,3 +424,12 @@ const stripGradientClasses = (e: Element | null) =>
         "si-leave-3",
         "si-leave-4",
     );
+
+function setVisibility(e: Element | undefined | null, visible: boolean) {
+    if (!e) return;
+    if (visible) {
+        e.classList.remove("si-disabled");
+    } else {
+        e.classList.add("si-disabled");
+    }
+}

@@ -1,6 +1,6 @@
 import { CharacterPF2e, CharacterSheetPF2e } from "@7h3laughingman/pf2e-types";
 import { SkillManager } from "./skill-manager";
-import { SkillManagerApp } from "./app/skill-manager-app";
+import { openSkillManager } from "./app/skill-manager-app";
 import { registerSettings } from "./settings";
 
 export const MODULE_ID = "pf2e-skill-issue";
@@ -36,7 +36,7 @@ Hooks.on("init", () => {
         header
             .querySelector("button.si-open-manager")
             ?.addEventListener("click", () =>
-                new SkillManagerApp({ actor }).render(true),
+                openSkillManager(actor).render(true),
             );
     });
 });
