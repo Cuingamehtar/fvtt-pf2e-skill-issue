@@ -1,5 +1,5 @@
-import { LorePF2e, SkillSlug } from "@7h3laughingman/pf2e-types";
-import { OneToTwenty } from "./data";
+import { SkillSlug } from "@7h3laughingman/pf2e-types";
+import { LoreId, OneToTwenty } from "./data";
 
 export function rangeInclusive(from: 1, to: 20): OneToTwenty[];
 export function rangeInclusive(from: number, to: number): number[];
@@ -13,7 +13,7 @@ export const notNull = <T>(e: T): e is NonNullable<T> => {
 
 export const localeCompare = (a: string, b: string) => a.localeCompare(b);
 
-export const isSkill = (s: SkillSlug | LorePF2e["id"]): s is SkillSlug =>
+export const isSkill = (s: SkillSlug | LoreId): s is SkillSlug =>
     s in CONFIG.PF2E.skills;
 
 export const unique = <T>(arr: T[]) => Array.from(new Set(arr));
@@ -34,3 +34,18 @@ export const getApp = (id: string) => foundry.applications.instances.get(id);
 
 export const rem1 = (a: number, b: number) => ((a - 1) % b) + 1;
 export const div1 = (a: number, b: number) => Math.floor((a - 1) / b) + 1;
+
+export const objectKeys = <T extends object>(obj: T): (keyof T)[] => {
+    return Object.keys(obj) as (keyof T)[];
+};
+export const objectEntries = <T extends object>(
+    obj: T,
+): [keyof T, T[keyof T]][] => {
+    return Object.entries(obj) as [keyof T, T[keyof T]][];
+};
+
+export const fromEntries = <K extends string | number | symbol, V>(
+    entries: [K, V][],
+): Record<K, V> => {
+    return Object.fromEntries(entries) as Record<K, V>;
+};

@@ -1,19 +1,7 @@
-<div style="width:400px;">
-    <div class="form-group">
-        <label for="plan-ahead-cap">{{localize "pf2e-skill-issue.config.plan-ahead-level-cap"}}</label>
-        <div class="form-fields">
-            <range-picker value="{{planAheadCap}}" min="0" max="20" step="1" name="plan-ahead-cap"></range-picker>
-        </div>
-        <p class="hint">{{localize "pf2e-skill-issue.config.plan-ahead-level-cap-hint"}}</p>
-    </div>
+<div class="scrollable" style="width:400px;">
+    {{formGroup planAheadCapField value=planAheadCap label="pf2e-skill-issue.config.plan-ahead-level-cap" hint="pf2e-skill-issue.config.plan-ahead-level-cap-hint" name="planAheadCap" localize="true"}}
     <p></p>
-    <div class="form-group">
-        <label for="mark-background-class">{{localize "pf2e-skill-issue.config.mark-background-class"}}</label>
-        <div class="form-fields">
-            <input type="checkbox" name="mark-background-class" {{checked this.markBackgroundClass}} />
-        </div>
-        <p class="hint">{{localize "pf2e-skill-issue.config.mark-background-class-hint"}}</p>
-    </div>
+    {{formGroup markAutoBackgroundClassField value=markAutoBackgroundClass label="pf2e-skill-issue.config.mark-auto-background-class" hint="pf2e-skill-issue.config.mark-auto-background-class-hint" name="markAutoBackgroundClass" localize="true"}}
     <p></p>
     <fieldset style="display:flex;flex-wrap: wrap;flex-direction:row; justify-items: space-between;">
         <legend>{{localize "pf2e-skill-issue.config.choice-cap-override"}}</legend>
@@ -26,4 +14,10 @@
         {{/each}}
     </fieldset>
     <p class="hint">{{localize "pf2e-skill-issue.config.choice-cap-override-hint"}}</p>
+    <p></p>
+    {{formGroup paragonSkillField value=paragonSkills label="pf2e-skill-issue.config.paragon-skill" hint="pf2e-skill-issue.config.paragon-skill-hint" name="paragonSkills" localize="true"}}
+    <p></p>
+    {{formGroup backgroundSkillField value=backgroundSkills label="pf2e-skill-issue.config.background-skill-manual" hint="pf2e-skill-issue.config.background-skill-manual-hint" name="backgroundSkills" localize="true"}}
+    <p></p>
+    {{formGroup classSkillField value=classSkills label="pf2e-skill-issue.config.class-skill-manual" hint="pf2e-skill-issue.config.class-skill-manual-hint" name="classSkills" localize="true"}}
 </div>

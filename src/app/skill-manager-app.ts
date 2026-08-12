@@ -6,15 +6,19 @@ import {
     SkillSlug,
     ZeroToFour,
 } from "@7h3laughingman/pf2e-types";
-import {
-    fromEntries,
-    maxRank,
-    objectEntries,
-    SkillManager,
-} from "../skill-manager";
+import { SkillManager } from "../skill-manager";
 import { currentDataVersion, LoreId, OneToTwenty } from "../data";
-import { localeCompare, rangeInclusive, notNull, getApp } from "../utils";
+import {
+    localeCompare,
+    rangeInclusive,
+    notNull,
+    getApp,
+    objectEntries,
+    fromEntries,
+    isSkill,
+} from "../utils";
 import { openSkillManagerConfig } from "./skill-manager-config-app";
+import { LoreInstance, maxRank, SkillInstance } from "../skill";
 
 type UnknownHookHandler = (p: unknown) => void;
 
@@ -212,19 +216,40 @@ class SkillManagerApp extends foundry.applications.api.HandlebarsApplicationMixi
         });
 
         skills.forEach((skill) => {
+            const instance = isSkill(skill.slug)
+                ? new SkillInstance(skill.slug, this.skillManager)
+                : new LoreInstance(skill.slug, this.skillManager);
             const row = this.element.querySelector(`tr.si-row-${skill.slug}`);
             if (!row) return;
             const rowFirstCell = row.querySelector(`td#skill-${skill.slug}`);
-            const skillRanks = this.skillManager.getCumulativeRanks(skill.slug);
             if (rowFirstCell) {
                 const icons = [
-                    this.#faIcon("source", skillRanks.source),
-                    ...(data.settings?.["mark-background-class"]
-                        ? [
-                              this.#faIcon("background", skillRanks.background),
-                              this.#faIcon("class", skillRanks.class),
-                          ]
-                        : []),
+                    this.#faIcon("source", instance.source),
+                    this.#faIcon(
+                        "background-auto",
+                        data.settings?.["mark-background-class"]
+                            ? instance.backgroundAutoRank
+                            : 0,
+                    ),
+                    this.#faIcon(
+                        "background-manual",
+                        instance.backgroundManualRank,
+                    ),
+                    this.#faIcon(
+                        "class-auto",
+                        data.settings?.["mark-background-class"]
+                            ? instance.classAutoRank
+                            : 0,
+                    ),
+                    this.#faIcon("class-manual", instance.classManualRank),
+                    this.#faIcon(
+                        "paragon-skill",
+                        Number(
+                            instance.paragonRank(
+                                this.actor.level as OneToTwenty,
+                            ),
+                        ) as ZeroToFour,
+                    ),
                 ].filter(notNull);
                 rowFirstCell.innerHTML =
                     _loc(skill.label) +
@@ -251,7 +276,7 @@ class SkillManagerApp extends foundry.applications.api.HandlebarsApplicationMixi
                 `td#skill-${skill.slug}-final`,
             );
             if (rowLastCell) {
-                const rankFinal = skillRanks.final;
+                const rankFinal = instance.finalRank;
                 stripGradientClasses(rowLastCell);
 
                 rowLastCell.classList.add(`si-leave-${rankFinal}`);
@@ -267,7 +292,6 @@ class SkillManagerApp extends foundry.applications.api.HandlebarsApplicationMixi
                 if (!cellHTML || cellHTML.classList.contains("si-disabled"))
                     return;
 
-                const rankEnter = skillRanks[i as 0 | OneToTwenty];
                 const thisChanged = filteredIncreases.find(
                     (inc) => inc.level === level && inc.slug === skill.slug,
                 );
@@ -276,14 +300,13 @@ class SkillManagerApp extends foundry.applications.api.HandlebarsApplicationMixi
                 if (thisChanged && select) {
                     select.value = String(thisChanged.rank);
                 }
-                const rankNext = rankEnter + 1;
-                const rankMax = maxRank(level);
+                const choices = instance.getChoices(level);
                 const locked =
                     !thisChanged &&
-                    (rankNext > rankMax || allowances[i].capped);
+                    (choices.min > choices.max || allowances[i].capped);
                 if (locked) {
                     if (lock) {
-                        if (rankNext > rankMax) {
+                        if (choices.min > choices.max) {
                             lock.dataset.tooltip = _loc(
                                 "pf2e-skill-issue.tooltip.locked-because.no-valid-upgrade-rank",
                             );
@@ -306,7 +329,10 @@ class SkillManagerApp extends foundry.applications.api.HandlebarsApplicationMixi
                     const option = cellHTML.querySelector(
                         `option[value="${rank}"]`,
                     );
-                    setVisibility(option, rank >= rankNext && rank <= rankMax);
+                    setVisibility(
+                        option,
+                        rank >= choices.min && rank <= choices.max,
+                    );
                 });
             });
         });
@@ -382,24 +408,40 @@ class SkillManagerApp extends foundry.applications.api.HandlebarsApplicationMixi
         configWindow.render(true);
     }
 
-    #faIcon(source: "source" | "class" | "background", rank: ZeroToFour) {
+    #faIcon(
+        source:
+            | "source"
+            | "class-auto"
+            | "class-manual"
+            | "background-auto"
+            | "background-manual"
+            | "paragon-skill"
+            | "paragon-lore",
+        rank: ZeroToFour,
+    ) {
         if (rank === 0) return null;
         const icon = document.createElement("i");
-        switch (source) {
-            case "source":
-                icon.classList.add("fa-solid", "fa-file-pen");
-                break;
-            case "class":
-                icon.classList.add("fa-solid", "fa-shield");
-                break;
-            case "background":
-                icon.classList.add("fa-solid", "fa-book");
-                break;
-        }
+        const faClass = (() => {
+            switch (source) {
+                case "source":
+                    return "fa-file-pen";
+                case "class-auto":
+                case "class-manual":
+                    return "fa-shield";
+                case "background-auto":
+                case "background-manual":
+                    return "fa-book";
+                case "paragon-skill":
+                case "paragon-lore":
+                    return "fa-star";
+            }
+        })();
+        icon.classList.add("fa-solid", faClass);
+
         icon.dataset.tooltip = _loc(
             `pf2e-skill-issue.tooltip.granted-by.${source}`,
             {
-                proficiency: `<p style="text-align:center;">${_loc(`PF2E.ProficiencyLevel${rank}`)}</p>`,
+                proficiency: _loc(`PF2E.ProficiencyLevel${rank}`),
             },
         );
         return icon;

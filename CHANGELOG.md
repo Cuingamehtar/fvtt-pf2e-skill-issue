@@ -4,7 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [1.0] - 2026-08-16
+## [1.1] - 2026-08-12
+
+### Added
+
+- Option to manually mark a Skill as granted by Background or Class. Character will automatically become trained in this skill. Useful when both the Background and Class provide the same skill improvement, as well as marking Background Lore.
+- Option to mark any skill or Lore as Paragon Skill / Additional Lore. Character will automatically become trained in this skill, and their proficiency in it will automatically improve at levels 3, 7 and 15. This will not provide the character with additional feats from the Skill Paragon variant rule.
+
+## [1.0] - 2026-08-06
 
 ### Removed
 

@@ -4,9 +4,9 @@ import {
     SkillSlug,
     ZeroToFour,
 } from "@7h3laughingman/pf2e-types";
-import { fromEntries, objectEntries, SkillManager } from "./skill-manager";
+import { SkillManager } from "./skill-manager";
 import { getOldSetting } from "./settings";
-import { mapSome } from "./utils";
+import { fromEntries, mapSome, objectEntries } from "./utils";
 
 type LoreSlug = `${string}-lore`;
 export type LoreId = LorePF2e["id"];
@@ -48,7 +48,7 @@ type SkillManagerDataV2 = Omit<
     "increases" | "overrides"
 > & {
     increases?: {
-        slug: SkillSlug | LorePF2e["id"];
+        slug: SkillSlug | LoreId;
         level: OneToTwenty;
         rank: OneToFour;
     }[];
@@ -57,7 +57,10 @@ type SkillManagerDataV2 = Omit<
         "plan-ahead-cap"?: OneToTwenty;
         "mark-background-class"?: boolean;
     };
-    overrides?: Record<SkillSlug | LorePF2e["id"], ZeroToFour>;
+    backgroundSkills?: (LoreId | SkillSlug)[];
+    classSkills?: SkillSlug[];
+    paragonSkills?: (LoreId | SkillSlug)[];
+    overrides?: Record<SkillSlug | LoreId, ZeroToFour>;
 };
 
 export type SkillManagerDataVersions = SkillManagerDataV1 | SkillManagerDataV2;

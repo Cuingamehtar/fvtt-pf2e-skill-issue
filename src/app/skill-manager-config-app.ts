@@ -1,7 +1,15 @@
-import { CharacterPF2e } from "@7h3laughingman/pf2e-types";
-import { div1, getApp, rangeInclusive, rem1 } from "../utils";
+import { CharacterPF2e, SkillSlug } from "@7h3laughingman/pf2e-types";
+import {
+    div1,
+    fromEntries,
+    getApp,
+    isSkill,
+    localeCompare,
+    rangeInclusive,
+    rem1,
+} from "../utils";
 import { SkillManager } from "../skill-manager";
-import { OneToTwenty, SkillManagerData } from "../data";
+import { LoreId, OneToTwenty, SkillManagerData } from "../data";
 
 export function openSkillManagerConfig(actor: CharacterPF2e) {
     const id = `skill-manager-config-app-${actor.uuid}`;
@@ -56,8 +64,62 @@ class SkillManagerConfigApp extends foundry.applications.api.HandlebarsApplicati
         const overrides = data.capOverrides ?? {};
         const planAheadCap = data.settings?.["plan-ahead-cap"];
 
+        const skills = this.skillManager.getSkills();
+        const lores = this.skillManager.getLores();
+
+        const planAheadCapField = new foundry.data.fields.NumberField({
+            min: 0,
+            max: 20,
+            step: 1,
+            integer: true,
+        });
+        const backgroundSkillField = new foundry.data.fields.SetField(
+            new foundry.data.fields.StringField({
+                choices: fromEntries(
+                    [skills, lores]
+                        .flat()
+                        .toSorted(sortSkillLore)
+                        .map(({ slug, label }) => [slug, label]),
+                ),
+            }),
+        );
+        const classSkillField = new foundry.data.fields.SetField(
+            new foundry.data.fields.StringField({
+                choices: fromEntries(
+                    [skills, lores]
+                        .flat()
+                        .toSorted(sortSkillLore)
+                        .map(({ slug, label }) => [slug, label]),
+                ),
+            }),
+        );
+
+        const paragonSkillField = new foundry.data.fields.SetField(
+            new foundry.data.fields.StringField({
+                choices: fromEntries(
+                    [skills, lores]
+                        .flat()
+                        .toSorted(sortSkillLore)
+                        .map(({ slug, label }) => [slug, label]),
+                ),
+            }),
+        );
+
+        const markAutoBackgroundClassField =
+            new foundry.data.fields.BooleanField();
+
         return {
             ...context,
+            planAheadCapField,
+            backgroundSkillField,
+            backgroundSkills: data.backgroundSkills ?? [],
+            classSkillField,
+            classSkills: data.classSkills ?? [],
+            markAutoBackgroundClassField,
+            markAutoBackgroundClass:
+                data.settings?.["mark-background-class"] ?? false,
+            paragonSkillField,
+            paragonSkills: data.paragonSkills,
             ...{
                 planAheadCap: planAheadCap ?? 0,
                 overrides: rangeInclusive(1, 20)
@@ -75,10 +137,25 @@ class SkillManagerConfigApp extends foundry.applications.api.HandlebarsApplicati
                         const b_col = div1(b.level, 5);
                         return a_row * 5 + a_col - b_row * 5 - b_col;
                     }),
-                markBackgroundClass:
-                    data.settings?.["mark-background-class"] ?? false,
             },
         } as SkillManagerConfigAppContext;
+    }
+    override async _onRender(
+        context: SkillManagerConfigAppContext,
+        options: fa.ApplicationRenderOptions,
+    ) {
+        super._onRender(context, options);
+        const lores = this.skillManager.getLores().toSorted(sortByLabel);
+        const selector = lores
+            .map(({ slug }) => `option[value='${slug}']`)
+            .join(", ");
+        const selects = this.element.querySelectorAll("select");
+        selects.forEach((e) => {
+            const l = e.querySelector(selector);
+            if (l) {
+                l.parentElement?.insertBefore(document.createElement("hr"), l);
+            }
+        });
     }
 
     static async submitFormHandler(
@@ -87,7 +164,6 @@ class SkillManagerConfigApp extends foundry.applications.api.HandlebarsApplicati
         _form: HTMLFormElement,
         formData: foundry.applications.ux.FormDataExtended,
     ) {
-        const planAheadCap = formData.object["plan-ahead-cap"] as number;
         const capOverrides = rangeInclusive(1, 20).reduce(
             (acc, level) => {
                 const key = `override-level-${level}`;
@@ -99,14 +175,20 @@ class SkillManagerConfigApp extends foundry.applications.api.HandlebarsApplicati
             },
             {} as NonNullable<SkillManagerData["capOverrides"]>,
         );
-        const markBackgroundClass = formData.object["mark-background-class"];
+        const markBackgroundClass = formData.object.markAutoBackgroundClass;
 
         const flag = {
             capOverrides: _replace(capOverrides),
             settings: {
-                "plan-ahead-cap": planAheadCap > 0 ? planAheadCap : _del,
+                "plan-ahead-cap":
+                    Number(formData.object.planAheadCap) > 0
+                        ? Number(formData.object.planAheadCap)
+                        : _del,
                 "mark-background-class": markBackgroundClass,
             },
+            backgroundSkills: _replace(formData.object.backgroundSkills),
+            classSkills: _replace(formData.object.classSkills),
+            paragonSkills: _replace(formData.object.paragonSkills),
         };
 
         await this.skillManager.setData(flag);
@@ -115,11 +197,30 @@ class SkillManagerConfigApp extends foundry.applications.api.HandlebarsApplicati
 
 interface SkillManagerConfigAppContext extends fa.ApplicationRenderContext {
     planAheadCap?: OneToTwenty;
-    markBackgroundClass: boolean;
+    markAutoBackgroundClass: boolean;
     overrides: {
         level: number;
         label: string;
         allowance: number;
         override?: number;
     }[];
+}
+
+function sortSkillLore(
+    a: { slug: SkillSlug | LoreId; label: string },
+    b: { slug: SkillSlug | LoreId; label: string },
+) {
+    const aSkill = isSkill(a.slug);
+    const bSkill = isSkill(b.slug);
+    if (aSkill !== bSkill) {
+        return Number(bSkill) - Number(aSkill);
+    }
+    return sortByLabel(a, b);
+}
+
+function sortByLabel(
+    a: { slug: SkillSlug | LoreId; label: string },
+    b: { slug: SkillSlug | LoreId; label: string },
+) {
+    return localeCompare(a.label, b.label);
 }
