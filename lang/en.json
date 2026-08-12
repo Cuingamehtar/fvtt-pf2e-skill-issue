@@ -35,7 +35,7 @@
                 "background-manual": "<p style=\"text-align:center;\">Background (Manual)</p><p style=\"text-align:center;\">{proficiency}</p><hr /><p>You have manually marked this skill as trained by the character's Background. It is improved to trained, and this improvement is not considered for the allocation cap.</p>",
                 "class-auto": "<p style=\"text-align:center;\">Class (Auto)</p><p style=\"text-align:center;\">{proficiency}</p><hr /><p>This proficiency is automatically provided by the Class Item. This only considers skills listed in the details tab, and not rule elements.</p>",
                 "class-manual": "<p style=\"text-align:center;\">Class (Manual)</p><p style=\"text-align:center;\">{proficiency}</p><hr /><p>You have manually marked this skill as trained by the character's Class. It is improved to trained, and this improvement is not considered for the allocation cap.</p>",
-                "paragon-skill": "<p style=\"text-align:center;\">Skill Paragon / Additional Lore</p><p style=\"text-align:center;\">{proficiency}</p><hr /><p>You have manually marked this skill as a paragon skill or a Lore granted by Additional Lore feat. It automatically becomes trained, then gets improved to expert on level 3, master on level 7 and legendary on level 13.</p>",
+                "paragon-skill": "<p style=\"text-align:center;\">Skill Paragon / Additional Lore</p><p style=\"text-align:center;\">{proficiency}</p><hr /><p>You have manually marked this skill as a paragon skill or a Lore granted by Additional Lore feat. It automatically becomes trained, then gets improved to expert on level 3, master on level 7 and legendary on level 15.</p>",
                 "source": "<p style=\"text-align:center;\">Source</p><p style=\"text-align:center;\">{proficiency}</p><hr /><p>This proficiency was manually set in the source data on the character's sheet.</p>"
             },
             "locked-because": {
@@ -54,7 +54,7 @@
             "mark-auto-background-class": "Automatically mark improvements by Background and Class",
             "mark-auto-background-class-hint": "In addition to marking skills improved in source, will also mark those that are automatically improved by character's background and class. Defaults to false, as it currently ignores rule elements and only uses data from the details tab, and may seem inconsistent.",
             "paragon-skill": "Paragon Skill / Additional Lore",
-            "paragon-skill-hint": "Selected skills/Lores automatically become trained, then get improved to expert on level 3, master on level 7 and legendary on level 13, and this improvement will not be considered for the allocation cap.",
+            "paragon-skill-hint": "Selected skills/Lores automatically become trained, then get improved to expert on level 3, master on level 7 and legendary on level 15, and this improvement will not be considered for the allocation cap.",
             "plan-ahead-level-cap": "Plan allocations up to level",
             "plan-ahead-level-cap-hint": "Allows preplanning all allocations in advance up to the chosen level. They won't take effect until you reach the required level.",
             "title": "Skill Manager Configuration"
