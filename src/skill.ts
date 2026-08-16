@@ -24,7 +24,9 @@ export abstract class AbstractSkillInstance<
         return Math.max(
             this.isParagon ? paragonRank(level) : 0,
             this.backgroundAutoRank,
+            this.backgroundManualRank,
             this.classAutoRank,
+            this.classManualRank,
         );
     }
     getChoices(level: OneToTwenty): { min: OneToFour; max: OneToFour } {
@@ -66,13 +68,14 @@ export abstract class AbstractSkillInstance<
     }
     get backgroundManualRank(): 0 | 1 {
         const data = this.skillManager.getData();
-        return data.backgroundSkills?.includes(this.slug as SkillSlug) ? 1 : 0;
+        return data.backgroundSkills?.includes(this.slug) ? 1 : 0;
     }
     get classAutoRank(): 0 | 1 {
         return 0;
     }
-    get classManualRank(): 0 | 1 {
-        return 0;
+    get classManualRank() {
+        const data = this.skillManager.getData();
+        return data.classSkills?.includes(this.slug) ? 1 : 0;
     }
 
     abstract get source(): ZeroToFour;
@@ -89,16 +92,6 @@ export class SkillInstance extends AbstractSkillInstance<"skill", SkillSlug> {
         this.type = "skill";
     }
 
-    getAutoRank(level: OneToTwenty) {
-        return Math.max(
-            this.isParagon ? paragonRank(level) : 0,
-            this.backgroundAutoRank,
-            this.backgroundManualRank,
-            this.classAutoRank,
-            this.classManualRank,
-        );
-    }
-
     get backgroundAutoRank() {
         return this.actor.background?.system.trainedSkills.value.includes(
             this.slug,
@@ -111,11 +104,6 @@ export class SkillInstance extends AbstractSkillInstance<"skill", SkillSlug> {
         return this.actor.class?.system.trainedSkills.value.includes(this.slug)
             ? 1
             : 0;
-    }
-
-    get classManualRank() {
-        const data = this.skillManager.getData();
-        return data.classSkills?.includes(this.slug) ? 1 : 0;
     }
 
     get source(): ZeroToFour {

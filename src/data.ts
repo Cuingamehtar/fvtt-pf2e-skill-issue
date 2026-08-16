@@ -58,7 +58,7 @@ type SkillManagerDataV2 = Omit<
         "mark-background-class"?: boolean;
     };
     backgroundSkills?: (LoreId | SkillSlug)[];
-    classSkills?: SkillSlug[];
+    classSkills?: (LoreId | SkillSlug)[];
     paragonSkills?: (LoreId | SkillSlug)[];
     overrides?: Record<SkillSlug | LoreId, ZeroToFour>;
 };
