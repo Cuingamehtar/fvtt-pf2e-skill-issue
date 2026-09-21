@@ -49,3 +49,15 @@ export const fromEntries = <K extends string | number | symbol, V>(
 ): Record<K, V> => {
     return Object.fromEntries(entries) as Record<K, V>;
 };
+
+export function countBy<T, K extends string | number>(
+    f: (e: T) => K,
+    arr: T[],
+) {
+    const acc = {} as Record<K, number>;
+    for (const e of arr) {
+        const key = f(e);
+        acc[key] = !acc[key] ? acc[key] + 1 : 1;
+    }
+    return acc;
+}

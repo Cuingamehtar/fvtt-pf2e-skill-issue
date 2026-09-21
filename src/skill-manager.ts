@@ -7,7 +7,13 @@ import {
     OneToTwenty,
     SkillManagerData,
 } from "./data";
-import { mapSome, objectEntries, objectKeys } from "./utils";
+import {
+    countBy,
+    mapSome,
+    objectEntries,
+    objectKeys,
+    rangeInclusive,
+} from "./utils";
 import { LoreInstance, SkillInstance } from "./skill";
 
 export class SkillManager {
@@ -97,5 +103,23 @@ export class SkillManager {
             slug: lore.id as LoreId,
             label: lore.name,
         }));
+    }
+    hasUnallocated() {
+        const data = this.getData();
+        const countIncreases = countBy(
+            (inc) => inc.level,
+            data.increases ?? [],
+        );
+        for (const level of rangeInclusive(
+            1,
+            this.actor.level,
+        ) as OneToTwenty[]) {
+            if (
+                this.getUpgradesForLevel(level).value >
+                (countIncreases[level] ?? 0)
+            )
+                return true;
+        }
+        return false;
     }
 }

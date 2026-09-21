@@ -29,6 +29,9 @@ Hooks.on("init", () => {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.classList.add("si-open-manager");
+        if (new SkillManager(actor).hasUnallocated()) {
+            btn.classList.add("has-unallocated");
+        }
         btn.innerHTML = `<i class="fa-solid fa-fw fa-edit"></i> ${_loc("pf2e-skill-issue.skill-manager-title")}`;
         btn.dataset.tooltip = _loc("pf2e-skill-issue.edit-skills");
         div.innerHTML += btn.outerHTML;
