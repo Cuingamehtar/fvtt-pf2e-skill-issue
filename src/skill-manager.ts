@@ -51,13 +51,16 @@ export class SkillManager {
     }
 
     prepareData() {
+        const skills = this.actor.system.skills;
         objectKeys(CONFIG.PF2E.skills).forEach((s) => {
             const skill = new SkillInstance(s, this);
-            this.actor.system.skills[s].rank = skill.getAppliedRank();
+            skills[s].rank = skill.getAppliedRank();
         });
         this.actor.itemTypes.lore.forEach((lore) => {
             const loreInstance = new LoreInstance(lore.id, this);
-            lore.system.proficient.value = loreInstance.getAppliedRank();
+            if (lore.slug in skills) {
+                skills[lore.slug].rank = loreInstance.getAppliedRank();
+            }
         });
     }
 
@@ -112,8 +115,8 @@ export class SkillManager {
         );
         for (const level of rangeInclusive(
             1,
-            this.actor.level,
-        ) as OneToTwenty[]) {
+            this.actor.level as OneToTwenty,
+        )) {
             if (
                 this.getUpgradesForLevel(level).value >
                 (countIncreases[level] ?? 0)

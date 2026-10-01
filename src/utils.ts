@@ -1,7 +1,10 @@
 import { SkillSlug } from "@7h3laughingman/pf2e-types";
 import { LoreId, OneToTwenty } from "./data";
 
-export function rangeInclusive(from: 1, to: 20): OneToTwenty[];
+export function rangeInclusive(
+    from: OneToTwenty,
+    to: OneToTwenty,
+): OneToTwenty[];
 export function rangeInclusive(from: number, to: number): number[];
 export function rangeInclusive(from: number, to: number) {
     return Array.fromRange(to - from + 1, from);
