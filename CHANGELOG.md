@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5] - 2026-10-08
+
+- Changed the handling of Lore skill increases to make them work in PF2e 8.6 / SF2e 1.6.
+
 ## [1.4] - 2026-09-21
 
 - Add a visual highlight on the skill manager button when there are still unallocated skill increases up to and including character's current level.
