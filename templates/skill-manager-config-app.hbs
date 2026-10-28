@@ -1,9 +1,10 @@
-<div class="scrollable" style="width:400px;">
+<div class="scrollable">
     {{formGroup planAheadCapField value=planAheadCap label="pf2e-skill-issue.config.plan-ahead-level-cap" hint="pf2e-skill-issue.config.plan-ahead-level-cap-hint" name="planAheadCap" localize="true"}}
     <p></p>
     {{formGroup markAutoBackgroundClassField value=markAutoBackgroundClass label="pf2e-skill-issue.config.mark-auto-background-class" hint="pf2e-skill-issue.config.mark-auto-background-class-hint" name="markAutoBackgroundClass" localize="true"}}
     <p></p>
-    <fieldset style="display:flex;flex-wrap: wrap;flex-direction:row; justify-items: space-between;">
+    <fieldset
+        style="display:flex;flex-wrap: wrap;flex-direction:row; justify-items: space-between;width:400px;margin:0 auto;">
         <legend>{{localize "pf2e-skill-issue.config.choice-cap-override"}}</legend>
         {{#each overrides}}
             <div class="form-group" style="max-width:20%">

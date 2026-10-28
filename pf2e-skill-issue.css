@@ -82,3 +82,7 @@
     background: var(--color-proficiency-legendary);
     color: var(--sidebar-title);
 }
+
+.skill-manager-config-app .form-group .form-fields {
+    flex-grow: 0.5;
+}

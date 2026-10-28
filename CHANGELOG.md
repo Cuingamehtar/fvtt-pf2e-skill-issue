@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6] - 2026-10-28
+
+- Added French localization (thanks to **RadBlue** and **rectulo**)
+- Adjusted Skill Manager Configuration layout a bit and made it wider
+
 ## [1.5] - 2026-10-08
 
 - Changed the handling of Lore skill increases to make them work in PF2e 8.6 / SF2e 1.6.

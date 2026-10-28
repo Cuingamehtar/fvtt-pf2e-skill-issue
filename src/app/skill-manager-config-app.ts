@@ -28,6 +28,7 @@ class SkillManagerConfigApp extends foundry.applications.api.HandlebarsApplicati
     static override DEFAULT_OPTIONS: DeepPartial<foundry.applications.ApplicationConfiguration> =
         {
             tag: "form",
+            classes: ["skill-manager-config-app"],
             form: {
                 submitOnChange: true,
                 closeOnSubmit: false,
@@ -36,6 +37,9 @@ class SkillManagerConfigApp extends foundry.applications.api.HandlebarsApplicati
             window: {
                 contentClasses: ["standard-form"],
                 title: "pf2e-skill-issue.config.title",
+            },
+            position: {
+                width: 600,
             },
         };
 
