@@ -1,0 +1,31 @@
+{
+  "pf2e-skill-issue": {
+    "edit-skills": "Éditer les compétentences",
+    "levels": {
+      "1": "1er",
+      "8": "8ème"
+    },
+    "note": "Note",
+    "skill": "Compétence",
+    "override": "Remplacer",
+    "final-proficiency": "Maîtrise finale",
+    "skill-manager-title": "Gestionnaire de compétence",
+    "tooltip": {
+      "granted-by": {
+        "source": "<p style=\"text-align:center;\">Source</p><p style=\"text-align:center;\">{proficiency}</p><hr /><p>Cette maîtrise a été manuellement configurée dans les données sources de la feuille de personnage.</p>"
+      },
+      "locked-because": {
+      }
+    },
+    "config": {
+      "background-skill-manual": "Saisie manuelle de compétence de l'historique",
+      "button": "Configuration",
+      "class-skill-manual": "Saisie manuelle de compétence de classe",
+      "choice-cap-override": "Remplacer la limite de choix",
+      "choice-cap-override-hint": "Modifie le nombre de compétence que vous pouvez améliorer à un niveau donné. Les valeurs modifiées seront signalées par un point d'exclamation dans l'en-tête. Effacez un champ pour désactiver la modification.",
+      "plan-ahead-level-cap": "Planifier  les allocations jusqu'au niveau",
+      "plan-ahead-level-cap-hint": "Permet de planifier à l'avance toutes les attributions jusqu'au niveau choisi. Elles ne prendront effet qu'une fois le niveau requis atteint.",
+      "title": "Configuration du gestionnaire de compétence"
+    }
+  }
+}
