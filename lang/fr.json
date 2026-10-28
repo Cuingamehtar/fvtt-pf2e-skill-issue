@@ -1,0 +1,63 @@
+{
+  "pf2e-skill-issue": {
+    "edit-skills": "Éditer les compétentences",
+    "levels": {
+      "1": "1er",
+      "2": "2e",
+      "3": "3e",
+      "4": "4e",
+      "5": "5e",
+      "6": "6e",
+      "7": "7e",
+      "8": "8e",
+      "9": "9e",
+      "10": "10e",
+      "11": "11e",
+      "12": "12e",
+      "13": "13e",
+      "14": "14e",
+      "15": "15e",
+      "16": "16e",
+      "17": "17e",
+      "18": "18e",
+      "19": "19e",
+      "20": "20e"
+    },
+    "note": "Note",
+    "skill": "Compétence",
+    "note-placeholder": "Champ de texte pour conserver les informations supplémentaires",
+    "override": "Remplacer",
+    "final-proficiency": "Maîtrise finale",
+    "skill-manager-title": "Gestionnaire de compétence",
+    "tooltip": {
+      "granted-by": {
+        "background-auto": "<p style=\"text-align:center;\">Historique (Auto)</p><p style=\"text-align:center;\">{proficiency}</p><hr /><p>Cette maîtrise est automatiquement attribuée par l'objet Historique. Cela ne prend en compte que les compétences listées dans l'onglet détails mais pas les éléments de règle.</p>",
+        "background-manual": "<p style=\"text-align:center;\">Historique (Manuel)</p><p style=\"text-align:center;\">{proficiency}</p><hr /><p>Vous avez saisi manuellement la maîtrise de cette compétence comme étant qualifié en raison de l'historique du personnage. Vous êtes qualifié dans cette compétence et cette amélioration n'est pas prise en compte dans la limite d'attribution.</p>",
+        "class-auto": "<p style=\"text-align:center;\">Classe (Auto)</p><p style=\"text-align:center;\">{proficiency}</p><hr /><p>Cette maîtrise est automatiquement attribuée par  l'objet Classe en prenant en compte uniquement les compétences listées dans l'onglet détails mais pas les éléments de règle.</p>",
+        "class-manual": "<p style=\"text-align:center;\">Classe (Manuel)</p><p style=\"text-align:center;\">{proficiency}</p><hr /><p>Vous avez saisi manuellement la maîtrise qualifié dans cette compétence en raison de la classe du personnage. Vous êtes qualifié dans cette compétence et cette amélioration n'est pas prise en compte dans la limite d'attribution.</p>",
+        "paragon-skill": "<p style=\"text-align:center;\">Compétence parangon / Connaissance supplémentaire</p><p style=\"text-align:center;\">{proficiency}</p><hr /><p>Vous avez saisi manuellement cette compétence comme étant une compétence parangon ou une connaissance accordée par le don Connaissance supplémentaire. Vous êtes qualifié, serez expert au niveau 3, maître au niveau  7 et légendaire au niveau  15.</p>",
+        "source": "<p style=\"text-align:center;\">Source</p><p style=\"text-align:center;\">{proficiency}</p><hr /><p>Cette maîtrise a été manuellement configurée dans les données sources de la feuille de personnage.</p>"
+      },
+      "locked-because": {
+        "no-valid-upgrade-rank": "Vous avez déjà la plus haute maîtrise possible dans cette compétence pour ce niveau de personnage.",
+        "exhausted-allowance": "Vous avez atteint le nombre maximum d'améliorations que vous pouvez choisir à ce niveau"
+      }
+    },
+    "config": {
+      "background-skill-manual": "Saisie manuelle de compétence de l'historique",
+      "background-skill-manual-hint": "Les compétences et connaissances sélectionnées seront marquées comme étant accordées par l'historique du personnage, en plus de celles automatiquement accordées. Vous êtes automatiquement qualifié et cette amélioration n'est pas prise en compte dans la limite d'attribution.",
+      "button": "Configuration",
+      "class-skill-manual": "Saisie manuelle de compétence de classe",
+      "class-skill-manual-hint": "Les compétences et connaissances sélectionnées seront marquées comme étant accordées par la classe du personnage, en plus de celles automatiquement accordées. Vous êtes automatiquement qualifié et cette amélioration n'est pas prise en compte dans la limite d'attribution.",
+      "choice-cap-override": "Remplacer la limite de choix",
+      "choice-cap-override-hint": "Modifie le nombre de compétence que vous pouvez améliorer à un niveau donné. Les valeurs modifiées seront signalées par un point d'exclamation dans l'en-tête. Effacez un champ pour désactiver la modification.",
+      "mark-auto-background-class": "Marquer automatiquement les améliorations de l'historique et de la classe",
+      "mark-auto-background-class-hint": "En plus de marquer les compétences améliorées à la source, cela marquera également celles qui sont automatiquement améliorées par l'historique et la classe du personnage. Désactivé par défaut, car cela ignore actuellement les éléments de règles et n'utilise que les données de l'onglet détails, ce qui peut sembler incohérent.",
+      "paragon-skill": "Compétence parangon / Connaissance supplémentaire",
+      "paragon-skill-hint": "Vous êtes automatiquement qualifié dans les compétences et connaissances sélectionnées, puis expert au niveau 3, maître au niveau  7 et légendaire au niveau  15 et cette amélioration n'est pas prise en compte dans la limite d'attribution.",
+      "plan-ahead-level-cap": "Planifier  les allocations jusqu'au niveau",
+      "plan-ahead-level-cap-hint": "Permet de planifier à l'avance toutes les attributions jusqu'au niveau choisi. Elles ne prendront effet qu'une fois le niveau requis atteint.",
+      "title": "Configuration du gestionnaire de compétence"
+    }
+  }
+}
