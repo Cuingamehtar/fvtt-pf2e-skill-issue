@@ -4,7 +4,7 @@ import { LoreId, OneToTwenty } from "./data";
 
 export abstract class AbstractSkillInstance<
     T extends "skill" | "lore",
-    S extends SkillSlug | LoreId,
+    S extends string,
 > {
     abstract type: T;
     constructor(
@@ -43,7 +43,7 @@ export abstract class AbstractSkillInstance<
                 .reduce(
                     (acc, inc) => Math.max(acc, inc.rank) as OneToFour,
                     0 as ZeroToFour,
-                ) ?? (0 as ZeroToFour)
+                ) ?? 0
         );
     }
     getAppliedRank(): ZeroToFour {

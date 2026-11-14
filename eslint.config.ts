@@ -11,9 +11,15 @@ export default defineConfig([
         },
         rules: {
             "valid-typeof": ["error", { requireStringLiterals: true }],
+            "@typescript-eslint/no-floating-promises": "warn",
+            "@typescript-eslint/no-misused-promises": "warn",
         },
-        extends: ["js/recommended"],
-        languageOptions: { globals: globals.browser },
-    },
-    tseslint.configs.recommended,
+        extends: [js.configs.recommended, tseslint.configs.recommendedTypeChecked],
+        languageOptions: {
+            globals: globals.browser,
+            parserOptions: {
+                projectService: true,
+            },
+        },
+    }
 ]);

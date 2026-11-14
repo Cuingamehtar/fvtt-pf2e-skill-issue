@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.7] - 2026-11-14
+
+- Fix Skill Manager Config App rendering failing when a character has no Lore skills
+
 ## [1.6] - 2026-10-28
 
 - Added French localization (thanks to **RadBlue** and **rectulo**)

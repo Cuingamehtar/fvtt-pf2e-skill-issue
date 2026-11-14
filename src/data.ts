@@ -48,7 +48,7 @@ type SkillManagerDataV2 = Omit<
     "increases" | "overrides"
 > & {
     increases?: {
-        slug: SkillSlug | LoreId;
+        slug: string;
         level: OneToTwenty;
         rank: OneToFour;
     }[];
@@ -57,10 +57,10 @@ type SkillManagerDataV2 = Omit<
         "plan-ahead-cap"?: OneToTwenty;
         "mark-background-class"?: boolean;
     };
-    backgroundSkills?: (LoreId | SkillSlug)[];
-    classSkills?: (LoreId | SkillSlug)[];
-    paragonSkills?: (LoreId | SkillSlug)[];
-    overrides?: Record<SkillSlug | LoreId, ZeroToFour>;
+    backgroundSkills?: string[];
+    classSkills?: string[];
+    paragonSkills?: string[];
+    overrides?: Record<string, ZeroToFour>;
 };
 
 export type SkillManagerDataVersions = SkillManagerDataV1 | SkillManagerDataV2;
@@ -78,10 +78,10 @@ export function migrateData(
         while (migrations[data.version]) {
             data = migrations[data.version](data, context);
         }
-        return data as SkillManagerData;
+        return data;
     }
 
-    return data as SkillManagerData;
+    return data;
 }
 
 export const newData: SkillManagerData = { version: currentDataVersion };

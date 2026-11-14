@@ -7,6 +7,8 @@ export const MODULE_ID = "pf2e-skill-issue";
 
 Hooks.on("init", () => {
     registerSettings();
+    //@ts-expect-error libWrapper is not declared
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     libWrapper.register(
         MODULE_ID,
         "CONFIG.PF2E.Actor.documentClasses.character.prototype.prepareDataFromItems",
@@ -39,7 +41,7 @@ Hooks.on("init", () => {
         header
             .querySelector("button.si-open-manager")
             ?.addEventListener("click", () =>
-                openSkillManager(actor).render(true),
+                void openSkillManager(actor).render(true),
             );
     });
 });

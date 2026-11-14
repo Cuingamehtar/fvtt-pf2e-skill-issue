@@ -1,12 +1,6 @@
 import { CharacterPF2e } from "@7h3laughingman/pf2e-types";
 import { MODULE_ID } from "./module";
-import {
-    LoreId,
-    migrateData,
-    newData,
-    OneToTwenty,
-    SkillManagerData,
-} from "./data";
+import { migrateData, newData, OneToTwenty, SkillManagerData } from "./data";
 import {
     countBy,
     mapSome,
@@ -103,7 +97,7 @@ export class SkillManager {
     }
     getLores() {
         return this.actor.itemTypes.lore.map((lore) => ({
-            slug: lore.id as LoreId,
+            slug: lore.id,
             label: lore.name,
         }));
     }

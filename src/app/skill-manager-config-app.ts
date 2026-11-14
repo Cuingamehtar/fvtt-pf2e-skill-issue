@@ -1,4 +1,4 @@
-import { CharacterPF2e, SkillSlug } from "@7h3laughingman/pf2e-types";
+import { CharacterPF2e } from "@7h3laughingman/pf2e-types";
 import {
     div1,
     fromEntries,
@@ -9,7 +9,7 @@ import {
     rem1,
 } from "../utils";
 import { SkillManager } from "../skill-manager";
-import { LoreId, OneToTwenty, SkillManagerData } from "../data";
+import { OneToTwenty, SkillManagerData } from "../data";
 
 export function openSkillManagerConfig(actor: CharacterPF2e) {
     const id = `skill-manager-config-app-${actor.uuid}`;
@@ -63,7 +63,7 @@ class SkillManagerConfigApp extends foundry.applications.api.HandlebarsApplicati
     protected async _prepareContext(
         options: fa.ApplicationRenderOptions,
     ): Promise<SkillManagerConfigAppContext> {
-        const context = super._prepareContext(options);
+        const context = await super._prepareContext(options);
         const data = this.skillManager.getData();
         const overrides = data.capOverrides ?? {};
         const planAheadCap = data.settings?.["plan-ahead-cap"];
@@ -148,18 +148,23 @@ class SkillManagerConfigApp extends foundry.applications.api.HandlebarsApplicati
         context: SkillManagerConfigAppContext,
         options: fa.ApplicationRenderOptions,
     ) {
-        super._onRender(context, options);
+        await super._onRender(context, options);
         const lores = this.skillManager.getLores().toSorted(sortByLabel);
-        const selector = lores
-            .map(({ slug }) => `option[value='${slug}']`)
-            .join(", ");
-        const selects = this.element.querySelectorAll("select");
-        selects.forEach((e) => {
-            const l = e.querySelector(selector);
-            if (l) {
-                l.parentElement?.insertBefore(document.createElement("hr"), l);
-            }
-        });
+        if (lores.length > 0) {
+            const selector = lores
+                .map(({ slug }) => `option[value='${slug}']`)
+                .join(", ");
+            const selects = this.element.querySelectorAll("select");
+            selects.forEach((e) => {
+                const l = e.querySelector(selector);
+                if (l) {
+                    l.parentElement?.insertBefore(
+                        document.createElement("hr"),
+                        l,
+                    );
+                }
+            });
+        }
     }
 
     static async submitFormHandler(
@@ -211,8 +216,8 @@ interface SkillManagerConfigAppContext extends fa.ApplicationRenderContext {
 }
 
 function sortSkillLore(
-    a: { slug: SkillSlug | LoreId; label: string },
-    b: { slug: SkillSlug | LoreId; label: string },
+    a: { slug: string; label: string },
+    b: { slug: string; label: string },
 ) {
     const aSkill = isSkill(a.slug);
     const bSkill = isSkill(b.slug);
@@ -223,8 +228,8 @@ function sortSkillLore(
 }
 
 function sortByLabel(
-    a: { slug: SkillSlug | LoreId; label: string },
-    b: { slug: SkillSlug | LoreId; label: string },
+    a: { slug: string; label: string },
+    b: { slug: string; label: string },
 ) {
     return localeCompare(a.label, b.label);
 }

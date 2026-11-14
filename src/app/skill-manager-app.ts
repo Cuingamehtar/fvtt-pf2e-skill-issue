@@ -3,11 +3,10 @@ import {
     CharacterPF2e,
     ItemPF2e,
     OneToFour,
-    SkillSlug,
     ZeroToFour,
 } from "@7h3laughingman/pf2e-types";
 import { SkillManager } from "../skill-manager";
-import { currentDataVersion, LoreId, OneToTwenty } from "../data";
+import { currentDataVersion, OneToTwenty } from "../data";
 import {
     localeCompare,
     rangeInclusive,
@@ -59,7 +58,7 @@ export function openSkillManager(actor: CharacterPF2e) {
 Hooks.on("updateActor", ((actor: ActorPF2e) => {
     const id = `skill-manager-app-${actor.uuid}`;
     const app = getApp(id) as SkillManagerApp | undefined;
-    app?.render({ isFirstRender: false });
+    void app?.render({ isFirstRender: false });
 }) as UnknownHookHandler);
 for (const hook of ["createItem", "deleteItem", "updateItem"]) {
     Hooks.on(hook, ((item: ItemPF2e) => {
@@ -68,7 +67,7 @@ for (const hook of ["createItem", "deleteItem", "updateItem"]) {
         if (!actor) return;
         const id = `skill-manager-app-${actor.uuid}`;
         const app = getApp(id) as SkillManagerApp | undefined;
-        app?.render({ isFirstRender: false });
+        void app?.render({ isFirstRender: false });
     }) as UnknownHookHandler);
 }
 
@@ -163,7 +162,7 @@ class SkillManagerApp extends foundry.applications.api.HandlebarsApplicationMixi
         context: SkillManagerAppContext,
         options: fa.ApplicationRenderOptions,
     ) {
-        super._onRender(context, options);
+        await super._onRender(context, options);
 
         const data = this.skillManager.getData();
         const filteredIncreases =
@@ -345,7 +344,7 @@ class SkillManagerApp extends foundry.applications.api.HandlebarsApplicationMixi
         formData: foundry.applications.ux.FormDataExtended,
     ) {
         const increases = objectEntries(formData.object)
-            .filter(([k, _]) => typeof k === "string" && k.startsWith("cell-"))
+            .filter(([k]) => typeof k === "string" && k.startsWith("cell-"))
             .map(([k, v]) => {
                 const m = k.match(/^cell-(\d+)-(.*)$/);
                 if (!m) return;
@@ -359,7 +358,7 @@ class SkillManagerApp extends foundry.applications.api.HandlebarsApplicationMixi
                 )
                     return;
                 return {
-                    slug: m[2] as SkillSlug | LoreId,
+                    slug: m[2],
                     level: level as OneToTwenty,
                     rank: value as OneToFour,
                 };
@@ -369,7 +368,7 @@ class SkillManagerApp extends foundry.applications.api.HandlebarsApplicationMixi
         const overrides = fromEntries(
             objectEntries(formData.object)
                 .filter(
-                    ([k, _]) =>
+                    ([k]) =>
                         typeof k === "string" && k.startsWith("cell-override-"),
                 )
                 .map(([k, v]) => {
@@ -377,7 +376,7 @@ class SkillManagerApp extends foundry.applications.api.HandlebarsApplicationMixi
                     if (!m) return;
                     const value = Number(v);
                     if (isNaN(value) || value < 0 || value > 4) return;
-                    return [m[1], value] as [SkillSlug | LoreId, ZeroToFour];
+                    return [m[1], value] as [string, ZeroToFour];
                 })
                 .filter(notNull),
         );
@@ -398,14 +397,10 @@ class SkillManagerApp extends foundry.applications.api.HandlebarsApplicationMixi
         return super.render(options);
     }
 
-    static onOpenConfig(
-        this: SkillManagerApp,
-        event: Event,
-        _target: HTMLElement,
-    ) {
+    static onOpenConfig(this: SkillManagerApp, event: Event) {
         event.preventDefault();
         const configWindow = openSkillManagerConfig(this.actor);
-        configWindow.render(true);
+        void configWindow.render(true);
     }
 
     #faIcon(
@@ -453,7 +448,7 @@ interface SkillManagerAppContext extends fa.ApplicationRenderContext {
     ranks: { labelShort: string; labelFull: string }[];
     levels: { value: OneToTwenty; label: string }[];
     skills: {
-        slug: SkillSlug | LoreId;
+        slug: string;
         label: string;
     }[];
 }

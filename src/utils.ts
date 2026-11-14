@@ -1,5 +1,5 @@
 import { SkillSlug } from "@7h3laughingman/pf2e-types";
-import { LoreId, OneToTwenty } from "./data";
+import { OneToTwenty } from "./data";
 
 export function rangeInclusive(
     from: OneToTwenty,
@@ -16,8 +16,7 @@ export const notNull = <T>(e: T): e is NonNullable<T> => {
 
 export const localeCompare = (a: string, b: string) => a.localeCompare(b);
 
-export const isSkill = (s: SkillSlug | LoreId): s is SkillSlug =>
-    s in CONFIG.PF2E.skills;
+export const isSkill = (s: string): s is SkillSlug => s in CONFIG.PF2E.skills;
 
 export const unique = <T>(arr: T[]) => Array.from(new Set(arr));
 
